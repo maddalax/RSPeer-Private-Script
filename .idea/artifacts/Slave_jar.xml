@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Slave:jar">
+    <output-path>$USER_HOME$/RSPeer/scripts</output-path>
+    <root id="archive" name="Slave.jar">
+      <element id="module-output" name="Slave" />
+    </root>
+  </artifact>
+</component>
