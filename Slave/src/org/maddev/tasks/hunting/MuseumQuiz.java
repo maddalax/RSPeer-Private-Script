@@ -1,5 +1,6 @@
 package org.maddev.tasks.hunting;
 
+import org.maddev.State;
 import org.maddev.Store;
 import org.maddev.helpers.interact.InteractHelper;
 import org.maddev.helpers.walking.MovementHelper;
@@ -197,6 +198,9 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     }
 
     public void notify(ChatMessageEvent event) {
+        if(Store.getState() == State.SCRIPT_STOPPED) {
+            Game.getEventDispatcher().deregister(this);
+        }
         l = event.getMessage();
     }
 

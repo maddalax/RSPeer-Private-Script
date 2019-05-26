@@ -1,7 +1,9 @@
 package org.maddev.tasks;
 
+import org.maddev.tasks.hunting.Hunting;
 import org.maddev.tasks.hunting.MuseumQuiz;
 import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskScript;
 
@@ -18,6 +20,7 @@ public class SubmitTasks extends Task {
     private Woodcutting woodcutting;
     private GrandExchange exchange;
     private MuseumQuiz quiz;
+    private Hunting hunting;
 
     public SubmitTasks(TaskScript instance) {
         this.instance = instance;
@@ -25,6 +28,7 @@ public class SubmitTasks extends Task {
         this.woodcutting = new Woodcutting();
         this.exchange = new GrandExchange();
         this.quiz = new MuseumQuiz();
+        this.hunting = new Hunting();
         this.submitted = new ArrayList<>();
     }
 
@@ -37,6 +41,10 @@ public class SubmitTasks extends Task {
     public int execute() {
         if(submittedTasks || !Game.isLoggedIn()) {
             return 200;
+        }
+
+        if(Inventory.contains("Bird snare") || Hunting.MIDDLE.isLoaded()) {
+            submitOnce(hunting);
         }
 
         if(!quiz.isDone() && quiz.inBasement()) {
@@ -54,6 +62,7 @@ public class SubmitTasks extends Task {
 
         submitOnce(crafting);
         submitOnce(woodcutting);
+        submitOnce(hunting);
 
         submittedTasks = true;
         instance.remove(this);

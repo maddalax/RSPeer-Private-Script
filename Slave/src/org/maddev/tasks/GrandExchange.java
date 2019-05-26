@@ -1,5 +1,7 @@
 package org.maddev.tasks;
 
+import org.maddev.State;
+import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.crafting.CraftingHelper;
 import org.maddev.helpers.equipment.EquipmentHelper;
@@ -7,6 +9,7 @@ import org.maddev.helpers.grand_exchange.GrandExchangePurchaser;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.walking.MovementHelper;
+import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Inventory;
@@ -130,6 +133,10 @@ public class GrandExchange extends Task implements TaskChangeListener {
 
     private boolean hasWoodcuttingSupplies() {
         return PlayerHelper.hasAll("Iron axe", "Steel axe", "Mithril axe", "Adamant axe");
+    }
+
+    private boolean hasHuntingSupplies() {
+        return PlayerHelper.hasAll("Games ");
     }
 
     private boolean hasLostCitySupplies() {

@@ -1,5 +1,6 @@
 package org.maddev.helpers.walking;
 
+import org.maddev.State;
 import org.maddev.Store;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.Time;
@@ -133,6 +134,9 @@ public class CustomWalker implements ChatMessageListener  {
 
     @Override
     public void notify(ChatMessageEvent e) {
+        if(Store.getState() == State.SCRIPT_STOPPED) {
+            Game.getEventDispatcher().deregister(this);
+        }
         if(e.getType() != ChatMessageType.GAME && e.getType() != ChatMessageType.SERVER) {
             return;
         }

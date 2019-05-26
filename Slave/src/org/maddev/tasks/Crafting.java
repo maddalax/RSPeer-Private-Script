@@ -1,5 +1,6 @@
 package org.maddev.tasks;
 
+import org.maddev.State;
 import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
@@ -158,6 +159,9 @@ public class Crafting extends Task implements AnimationListener {
 
     @Override
     public void notify(AnimationEvent e) {
+        if(Store.getState() == State.SCRIPT_STOPPED) {
+            Game.getEventDispatcher().deregister(this);
+        }
        if(e.getSource() == Players.getLocal() && e.getCurrent() != -1) {
            lastAnim = System.currentTimeMillis();
        }

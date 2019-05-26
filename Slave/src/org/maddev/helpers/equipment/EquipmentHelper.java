@@ -11,4 +11,13 @@ public class EquipmentHelper {
         return names;
     }
 
+    public static String[] getGamesNecklaces() {
+        String[] names = new String[8];
+        for(int i = 0; i < 8; i++) {
+            String name = "Games necklace(" + (i + 1) + ")";
+            names[i] = name;
+        }
+        return names;
+    }
+
 }
