@@ -1,13 +1,11 @@
 package org.maddev.helpers.grand_exchange;
 
-import org.maddev.helpers.bank.BankCache;
+import org.maddev.helpers.player.PlayerHelper;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.GrandExchangeSetup;
-import org.rspeer.runetek.api.component.tab.Equipment;
-import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
 
@@ -25,7 +23,6 @@ public class GrandExchangePurchaser {
         if(hasItem(pair.getName())) {
             return;
         }
-        System.out.println("Adding: " + pair.getName());
         pairs.add(pair);
     }
 
@@ -63,9 +60,11 @@ public class GrandExchangePurchaser {
             return false;
         }
 
-        if (GrandExchangeSetup.getQuantity() != pair.getQuantity()) {
-            System.out.println("Attempting to set quantity.");
-            GrandExchangeSetup.setQuantity(pair.getQuantity());
+        int current = PlayerHelper.getTotalCount(pair.getName());
+        int quantity = pair.getQuantity() - current;
+        if (GrandExchangeSetup.getQuantity() != quantity) {
+            System.out.println("Attempting to set quantity to " + quantity + ".");
+            GrandExchangeSetup.setQuantity(quantity);
             Time.sleep(500, 1000);
             return false;
         }
@@ -125,16 +124,8 @@ public class GrandExchangePurchaser {
         if (getOffer(pair) != null) {
             return false;
         }
-        if (Inventory.contains(pair.getName())) {
-            return false;
-        }
-        if (BankCache.contains(pair.getName())) {
-            return false;
-        }
-        if(Equipment.contains(pair.getName())) {
-            return false;
-        }
-        return true;
+        int count = PlayerHelper.getTotalCount(pair.getName());
+        return count < pair.getQuantity();
     }
 
     private boolean collect() {

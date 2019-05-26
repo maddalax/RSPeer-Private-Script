@@ -6,6 +6,13 @@ import org.rspeer.runetek.api.component.tab.Inventory;
 
 public class PlayerHelper {
 
+    public static int getTotalCount(String name) {
+        int count = BankCache.getCount(name);
+        count += Inventory.getCount(name);
+        count += Equipment.getCount(name);
+        return count;
+    }
+
     public static boolean hasAll(String ... names) {
         for (String name : names) {
             if(!BankCache.contains(name) && !Inventory.contains(name) && !Equipment.contains(name)) {

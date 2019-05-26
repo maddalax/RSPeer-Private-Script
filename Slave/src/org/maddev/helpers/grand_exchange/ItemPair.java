@@ -48,4 +48,9 @@ public class ItemPair {
         this.quantity = quantity;
         this.increasePriceTimes = increasePriceTimes;
     }
+
+    public ItemPair(String name, int quantity) {
+        this.name = name;
+        this.quantity = quantity;
+    }
 }

@@ -25,8 +25,12 @@ public class MovementHelper {
         return getInstance().walk(p, acceptEndBlocked);
     }
 
+    public static boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
+        return getInstance().walkRandomized(p, acceptEndBlocked, useHomeTeleport);
+    }
+
     public static boolean walkRandomized(Position p, boolean acceptEndBlocked) {
-        return getInstance().walkRandomized(p, acceptEndBlocked);
+        return getInstance().walkRandomized(p, acceptEndBlocked, false);
     }
 
     public static void stopCustomPath() {

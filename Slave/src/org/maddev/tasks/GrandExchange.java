@@ -29,7 +29,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
         if(Skills.getCurrentLevel(Skill.WOODCUTTING) < 36) {
             any = !hasWoodcuttingSupplies();
         }
-        return !hasLostCitySupplies();
+        return any || !hasLostCitySupplies();
     }
 
     @Override
@@ -85,6 +85,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
     }
 
     private boolean getWoodcuttingSupplies() {
+        System.out.println("Attempting to purchase woodcutting suppies.");
         // Clear from crafting purchasing.
         if(purchaser != null && purchaser.hasItem("Leather")) {
             purchaser.clear();
@@ -100,6 +101,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
     }
 
     private boolean getLostCitySupplies() {
+        System.out.println("Attempting to purchase lost city supplies.");
         // Clear from crafting purchasing.
         if(purchaser != null && !purchaser.hasItem("Mind rune")) {
             purchaser.clear();
@@ -127,11 +129,19 @@ public class GrandExchange extends Task implements TaskChangeListener {
 
 
     private boolean hasWoodcuttingSupplies() {
-        return PlayerHelper.hasAll("Iron Axe", "Steel Axe", "Mithril Axe", "Adamant Axe");
+        return PlayerHelper.hasAll("Iron axe", "Steel axe", "Mithril axe", "Adamant axe");
     }
 
     private boolean hasLostCitySupplies() {
-        return PlayerHelper.hasAll("Knife", "Mind rune", "Air rune", "Earth rune", "Water rune", "Lobster")
+        boolean hasRunes = PlayerHelper.getTotalCount("Mind rune") >= 400;
+        hasRunes = hasRunes && PlayerHelper.getTotalCount("Air rune") >= 700;
+        hasRunes = hasRunes && PlayerHelper.getTotalCount("Earth rune") >= 300;
+        hasRunes = hasRunes && PlayerHelper.getTotalCount("Water rune") >= 300;
+        if(!hasRunes) {
+            System.out.println("Does not have all the runes!");
+            return false;
+        }
+        return PlayerHelper.hasAll("Knife", "Lobster")
                 && PlayerHelper.hasAny(EquipmentHelper.getChargedGlories());
     }
 

@@ -1,21 +1,33 @@
 package org.maddev.helpers.walking;
 
+import org.maddev.Store;
+import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.commons.Time;
+import org.rspeer.runetek.api.component.tab.Magic;
+import org.rspeer.runetek.api.component.tab.Spell;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.path.HpaPath;
 import org.rspeer.runetek.api.movement.path.Path;
 import org.rspeer.runetek.api.movement.path.PredefinedPath;
 import org.rspeer.runetek.api.movement.pathfinding.executor.PathExecutor;
 import org.rspeer.runetek.api.movement.position.Position;
+import org.rspeer.runetek.api.scene.Players;
+import org.rspeer.runetek.event.listeners.ChatMessageListener;
+import org.rspeer.runetek.event.types.ChatMessageEvent;
+import org.rspeer.runetek.event.types.ChatMessageType;
 
 import java.util.HashSet;
 
-public class CustomWalker {
+public class CustomWalker implements ChatMessageListener  {
 
     private CustomPath currentCustomPath;
     private Path currentPath;
     private static HashSet<CustomPath> customPaths;
+    private long timeTillTeleport;
+    private static final Position LUMBRIDGE_TILE = new Position(3220, 3218, 0);
 
     public CustomWalker() {
+        Game.getEventDispatcher().register(this);
         customPaths = new HashSet<>();
     }
 
@@ -38,6 +50,17 @@ public class CustomWalker {
     }
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked) {
+        PathExecutor.getPathExecutorSupplier().get().setRandomizeAll(true);
+        return walk(p, acceptEndBlocked);
+    }
+
+    public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
+        Store.setStatus("Destination distance: " + p.distance());
+        if(useHomeTeleport && timeTillTeleport < System.currentTimeMillis()) {
+            if(!useHomeTeleport(p)) {
+                return false;
+            }
+        }
         PathExecutor.getPathExecutorSupplier().get().setRandomizeAll(true);
         return walk(p, acceptEndBlocked);
     }
@@ -88,5 +111,37 @@ public class CustomWalker {
     public boolean isWalkingCustomPath(CustomPath path) {
         return path != null && path.getPath() != null
                 && path.getPath().getCurrent() != null;
+    }
+
+    private boolean useHomeTeleport(Position dest) {
+        if(Players.getLocal().isAnimating()) {
+            return false;
+        }
+        if(dest.distance() < 50) {
+            return true;
+        }
+        if(dest.getFloorLevel() == 0 && LUMBRIDGE_TILE.distance() > dest.distance()) {
+            return true;
+        }
+        if(Magic.canCast(Spell.Modern.HOME_TELEPORT)) {
+            Magic.cast(Spell.Modern.HOME_TELEPORT);
+            Time.sleepUntil(() -> Players.getLocal().isAnimating(), 3500);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void notify(ChatMessageEvent e) {
+        if(e.getType() != ChatMessageType.GAME && e.getType() != ChatMessageType.SERVER) {
+            return;
+        }
+        System.out.println(e.getMessage());
+        if(e.getMessage().contains("You need to wait another ")) {
+            int minutes = Integer.parseInt(e.getMessage().replace("You need to wait another", "")
+                    .replace("minutes to cast this spell.", "").trim());
+            timeTillTeleport = System.currentTimeMillis() + (minutes * 60000);
+            System.out.println("Can't teleport for at-least " + minutes + " minutes.");
+        }
     }
 }
