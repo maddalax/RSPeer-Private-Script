@@ -33,7 +33,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
     public static final Position MIDDLE = new Position(2351, 3589);
     private Position trap;
     private HashMap<Position, Long> created;
-    private long clearTime = Random.nextInt(55000, 75000);
+    private long clearTime = Random.nextInt(120000, 210000);
 
     public Hunting() {
       created = new HashMap<>();
@@ -90,7 +90,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
                             System.out.println("Snare is null. Clearing");
                             created.remove(trap);
                             trap = null;
-                            clearTime = Random.nextInt(24000, 38000);
+                            clearTime = Random.nextInt(120000, 210000);
                         }
                     }
                     return;
