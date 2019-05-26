@@ -55,6 +55,9 @@ public class BankHelper {
             Bank.depositInventory();
             Time.sleep(490, 759);
         }
+        if(!Bank.contains(item)) {
+            return false;
+        }
         Bank.withdraw(item, quantity);
         Time.sleep(490, 759);
         return Inventory.contains(item);
@@ -71,6 +74,9 @@ public class BankHelper {
         Store.setStatus("Withdrawing " + item + ".");
         if(!Bank.isOpen()) {
             open(location, true);
+            return false;
+        }
+        if(!Bank.contains(item)) {
             return false;
         }
         if(Inventory.isFull()) {
