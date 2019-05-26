@@ -68,6 +68,7 @@ public class Woodcutting extends Task {
         }
 
         InteractHelper.interact(tree, "Chop down");
+        Time.sleepUntil(() -> Players.getLocal().isAnimating(), 3500);
         return loop;
     }
 
