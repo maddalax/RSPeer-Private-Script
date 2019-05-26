@@ -1,6 +1,7 @@
 package org.maddev.helpers.walking.paths;
 
 import org.maddev.helpers.walking.CustomPath;
+import org.maddev.tasks.hunting.MuseumQuiz;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Position;
@@ -23,7 +24,8 @@ public class LumbridgeHut extends CustomPath {
     @Override
     public boolean validate(Position end) {
         // Do not validate this custom path if we are not trying to walk towards the grand exchange.
-        if(end.distance(BankLocation.GRAND_EXCHANGE.getPosition()) > 5) {
+        if(end.distance(BankLocation.GRAND_EXCHANGE.getPosition()) > 5
+                && end.distance(MuseumQuiz.MUSEUM_AREA.getCenter()) > 5) {
             return false;
         }
         if(!LUMBRIDGE_HOUSE.isLoaded()) {

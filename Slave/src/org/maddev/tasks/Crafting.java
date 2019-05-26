@@ -54,6 +54,7 @@ public class Crafting extends Task implements AnimationListener {
 
     @Override
     public int execute() {
+        Store.setStatus("Crafting.");
         int level = getLevel();
         if(level < 10) {
             craftLeather();

@@ -3,7 +3,6 @@ package org.maddev.helpers.bank;
 import org.maddev.State;
 import org.maddev.Store;
 import org.rspeer.runetek.adapter.component.Item;
-import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
 
@@ -18,7 +17,6 @@ public class BankCache {
         initialize();
         return cache.containsKey(name) || Bank.contains(name);
     }
-
 
     public static int getCount(String name) {
         initialize();
@@ -46,7 +44,7 @@ public class BankCache {
                 Time.sleep(350, 650);
                 continue;
             }
-            BankHelper.open(BankLocation.getNearest(), true);
+            BankHelper.open(BankHelper.nearest(), true);
         }
         Store.setStatus("Succesfully cached bank.");
     }

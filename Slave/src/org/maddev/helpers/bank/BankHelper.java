@@ -10,8 +10,8 @@ import org.rspeer.runetek.api.component.tab.Inventory;
 
 public class BankHelper {
 
-    public static boolean open() {
-        return open(BankLocation.getNearest());
+    public static BankLocation nearest() {
+        return BankLocation.getNearest(s -> s.getType() != BankLocation.Type.DEPOSIT_BOX);
     }
 
     public static boolean open(BankLocation location) {
@@ -33,9 +33,13 @@ public class BankHelper {
     }
 
     public static boolean withdraw(ItemPair ... pair) {
+        return withdraw(nearest(), false, pair);
+    }
+
+    public static boolean withdraw(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
         for (ItemPair item : pair) {
             boolean isAll = item.getQuantity() == Integer.MAX_VALUE;
-            if(!(isAll ? withdrawAll(item.getName()) : withdraw(item.getName(), item.getQuantity()))) {
+            if(!(isAll ? withdrawAll(item.getName(), location, useHomeTeleport) : withdraw(item.getName(), item.getQuantity()))) {
                 return false;
             }
         }
@@ -43,12 +47,17 @@ public class BankHelper {
     }
 
     public static boolean withdraw(String item, int quantity) {
+        return withdraw(nearest(), false, item, quantity);
+    }
+
+
+    public static boolean withdraw(BankLocation location, boolean useHomeTeleport, String item, int quantity) {
         if(Inventory.contains(item)) {
             return true;
         }
         Store.setStatus("Withdrawing " + item + ".");
         if(!Bank.isOpen()) {
-            open();
+            open(location, useHomeTeleport);
             return false;
         }
         if(Inventory.isFull()) {
@@ -64,7 +73,7 @@ public class BankHelper {
     }
 
     public static boolean withdrawAll(String item) {
-       return withdrawAll(item, BankLocation.getNearest(), false);
+       return withdrawAll(item, nearest(), false);
     }
 
     public static boolean withdrawAll(String item, BankLocation location, boolean useHomeTeleport) {
@@ -73,7 +82,7 @@ public class BankHelper {
         }
         Store.setStatus("Withdrawing " + item + ".");
         if(!Bank.isOpen()) {
-            open(location, true);
+            open(location, useHomeTeleport);
             return false;
         }
         if(!Bank.contains(item)) {

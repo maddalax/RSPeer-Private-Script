@@ -4,10 +4,9 @@ import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.walking.CustomPath;
 import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.walking.paths.LumbridgeHut;
-import org.maddev.tasks.Crafting;
+import org.maddev.tasks.SubmitTasks;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.Worlds;
-import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.event.listeners.BankLoadListener;
 import org.rspeer.runetek.event.listeners.ItemTableListener;
@@ -19,7 +18,6 @@ import org.rspeer.runetek.providers.subclass.GameCanvas;
 import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.TaskScript;
-import org.maddev.tasks.GrandExchange;
 
 import java.awt.*;
 
@@ -33,8 +31,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
                 && !s.isTournament()));
         GameCanvas.setInputEnabled(true);
 
-        submit(new GrandExchange());
-        submit(new Crafting());
+        submit(new SubmitTasks(this));
 
         MovementHelper.addCustomPath(new LumbridgeHut());
     }
