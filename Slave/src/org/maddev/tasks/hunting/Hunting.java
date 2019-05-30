@@ -24,6 +24,7 @@ import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -55,7 +56,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
     private void doExecute() {
         Store.setStatus("Hunting");
         if(!MIDDLE.isLoaded()) {
-            System.out.println("Walking to middle.");
+            Log.fine("Walking to middle.");
             MovementHelper.walkRandomized(MIDDLE, false);
             return;
         }
@@ -66,7 +67,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
             Pickable snare = Pickables.getNearest("Bird snare");
             if (snare != null && snare.containsAction("Take")) {
                 if (snare.getPosition().equals(trap)) {
-                    System.out.println("Removing trap!");
+                    Log.fine("Removing trap!");
                     created.remove(trap);
                     trap = null;
                 }
@@ -84,10 +85,10 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
                 }
                 long start = created.get(trap);
                 if(System.currentTimeMillis() - start > clearTime) {
-                    System.out.println("Been " + clearTime + " ms. Picking up trap.");
+                    Log.fine("Been " + clearTime + " ms. Picking up trap.");
                     if(active.interact("Dismantle")) {
                         if(getActiveSnare() == null) {
-                            System.out.println("Snare is null. Clearing");
+                            Log.fine("Snare is null. Clearing");
                             created.remove(trap);
                             trap = null;
                             clearTime = Random.nextInt(120000, 210000);
@@ -101,7 +102,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
 
         SceneObject broken = getBrokenSnare();
         if(broken != null) {
-            System.out.println("Picking up trap.");
+            Log.fine("Picking up trap.");
             created.remove(trap);
             trap = null;
             InteractHelper.interact(broken, "Dismantle");
@@ -110,7 +111,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         }
         SceneObject caught = getCaught();
         if(caught != null) {
-            System.out.println("Picking up caught trap.");
+            Log.fine("Picking up caught trap.");
             created.remove(trap);
             trap = null;
             InteractHelper.interact(caught, "Check");
@@ -131,9 +132,9 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
             trap = p;
         }
         if(!Players.getLocal().getPosition().equals(trap)) {
-            System.out.println("Walking to trap." + " " + trap.toString());
+            Log.fine("Walking to trap." + " " + trap.toString());
             if(!Movement.setWalkFlagWithConfirm(trap)) {
-                System.out.println("Could not walk to trap, resetting.");
+                Log.fine("Could not walk to trap, resetting.");
                 trap = null;
             }
             Time.sleep(800, 1800);
@@ -141,7 +142,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         }
         Item snare = Inventory.getFirst("Bird snare");
         if(snare == null) {
-            System.out.println("No bird snare?");
+            Log.fine("No bird snare?");
             return;
         }
         InteractHelper.interact(snare, "Lay");
@@ -202,7 +203,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
             return;
         }
         if(e.getMessage().contains("You can't lay a trap")) {
-            System.out.println("Can't lay a trap here.");
+            Log.fine("Can't lay a trap here.");
             if(trap != null) {
                 created.remove(trap);
                 trap = null;
@@ -210,10 +211,10 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         }
         if(e.getMessage().contains("You begin setting up the trap")) {
             trap = Players.getLocal().getPosition();
-            System.out.println("New trap position: " + trap);
+            Log.fine("New trap position: " + trap);
         }
         if(e.getMessage().contains("You may set up only one trap")) {
-            System.out.println("Somehow we lost our trap position?");
+            Log.fine("Somehow we lost our trap position?");
             new Thread(() -> {
                 SceneObject snare = SceneObjects.getNearest("Bird snare");
                 if(snare != null && snare.containsAction("Dismantle")) {

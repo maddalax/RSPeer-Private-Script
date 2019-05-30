@@ -19,6 +19,7 @@ import org.rspeer.runetek.providers.subclass.GameCanvas;
 import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.TaskScript;
+import org.rspeer.ui.Log;
 
 import java.awt.*;
 
@@ -39,7 +40,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
 
     @Override
     public void onStop() {
-        System.out.println("Stopped");
+        Log.fine("Stopped");
         Store.setState(org.maddev.State.SCRIPT_STOPPED);
         super.onStop();
     }
@@ -54,7 +55,6 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         if(Store.getStatus() != null) {
             g.drawString("Status: " + Store.getStatus(), 320, 45);
         }
-        g.drawString("Varp: " + Varps.get(147), 320, 65);
     }
 
     @Override

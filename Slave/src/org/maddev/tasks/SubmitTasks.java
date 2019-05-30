@@ -57,8 +57,7 @@ public class SubmitTasks extends Task {
             submitOnce(woodcutting);
         }
 
-        //TODO add back
-        //submitOnce(exchange);
+        submitOnce(exchange);
         if(!quiz.isDone()) {
             submitOnce(quiz);
         }

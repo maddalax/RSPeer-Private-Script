@@ -5,6 +5,7 @@ import org.maddev.Store;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
+import org.rspeer.ui.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class BankCache {
         if (Bank.isOpen()) {
             Map<String, Integer> bank = new HashMap<>();
             for (Item item : Bank.getItems()) {
-                System.out.println(item.getName() + " " + item.getStackSize());
+                Log.fine(item.getName() + " " + item.getStackSize());
                 bank.put(item.getName(), item.getStackSize() + bank.getOrDefault(item.getName(), 0));
             }
             cache = bank;

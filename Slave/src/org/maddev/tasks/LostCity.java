@@ -1,5 +1,6 @@
 package org.maddev.tasks;
 
+import org.maddev.State;
 import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.dialogue.DialogueHelper;
@@ -11,6 +12,7 @@ import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.Pickable;
 import org.rspeer.runetek.adapter.scene.SceneObject;
+import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.Varps;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
@@ -28,6 +30,7 @@ import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.runetek.event.listeners.RenderListener;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -69,7 +72,7 @@ public class LostCity extends Task implements RenderListener {
         if(Health.getPercent() <= 50) {
             Item lobster = Inventory.getFirst("Lobster");
             if(lobster == null) {
-                System.out.println("Yikes no lobster, we are dead boys.");
+                Log.fine("Yikes no lobster, we are dead boys.");
             }
             else {
                 lobster.click();
@@ -189,7 +192,7 @@ public class LostCity extends Task implements RenderListener {
         if(Players.getLocal().getPosition().getFloorLevel() == 1) {
             SceneObject plank = SceneObjects.getFirstAt(new Position(2834, 3333, 1));
             if(plank != null) {
-                System.out.println("Crossing plank.");
+                Log.fine("Crossing plank.");
                 plank.click();
                 Time.sleep(850, 1120);
                 return;
@@ -229,7 +232,7 @@ public class LostCity extends Task implements RenderListener {
                     lobster.interact("Drop");
                     Time.sleep(350, 550);
                 }
-                System.out.println("Trying to pickup axe.");
+                Log.fine("Trying to pickup axe.");
                 axe.interact("Take");
                 Time.sleep(850, 1950);
                 return;
@@ -369,6 +372,10 @@ public class LostCity extends Task implements RenderListener {
 
     @Override
     public void notify(RenderEvent e) {
+        if(Store.getState() == State.SCRIPT_STOPPED) {
+            Game.getEventDispatcher().deregister(this);
+            return;
+        }
         e.getSource().setColor(Color.PINK);
         if(zombieSafeSpot.isLoaded()) {
             zombieSafeSpot.outline(e.getSource());

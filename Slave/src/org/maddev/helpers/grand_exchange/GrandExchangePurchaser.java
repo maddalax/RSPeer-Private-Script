@@ -8,6 +8,7 @@ import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.GrandExchangeSetup;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
+import org.rspeer.ui.Log;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -44,17 +45,17 @@ public class GrandExchangePurchaser {
             return false;
         }
 
-        System.out.println("Creating offer for " + pair.getName());
+        Log.fine("Creating offer for " + pair.getName());
 
         if (!GrandExchangeSetup.isOpen()) {
-            System.out.println("Attempting to create offer.");
+            Log.fine("Attempting to create offer.");
             GrandExchange.createOffer(RSGrandExchangeOffer.Type.BUY);
             Time.sleep(500, 1000);
             return false;
         }
 
         if (GrandExchangeSetup.getItem() == null) {
-            System.out.println("Attempting to set item");
+            Log.fine("Attempting to set item");
             GrandExchangeSetup.setItem(pair.getName());
             Time.sleep(500, 1000);
             return false;
@@ -63,7 +64,7 @@ public class GrandExchangePurchaser {
         int current = PlayerHelper.getTotalCount(pair.getName());
         int quantity = pair.getQuantity() - current;
         if (GrandExchangeSetup.getQuantity() != quantity) {
-            System.out.println("Attempting to set quantity to " + quantity + ".");
+            Log.fine("Attempting to set quantity to " + quantity + ".");
             GrandExchangeSetup.setQuantity(quantity);
             Time.sleep(500, 1000);
             return false;
@@ -74,10 +75,10 @@ public class GrandExchangePurchaser {
         }
 
         if(pair.getPriceMinimum() != 0 && GrandExchangeSetup.getPricePerItem() < pair.getPriceMinimum()) {
-            System.out.println("Attempting to set price.");
+            Log.fine("Attempting to set price.");
             GrandExchangeSetup.setPrice(pair.getPriceMinimum());
         } else {
-            System.out.println("Attempting to increase price.");
+            Log.fine("Attempting to increase price.");
             GrandExchangeSetup.increasePrice(pair.getIncreasePriceTimes());
         }
 
@@ -109,7 +110,7 @@ public class GrandExchangePurchaser {
                 purchaseCount++;
                 continue;
             }
-            System.out.println("Attempting to purchase: " + pair.getName() + " for " + pair.getQuantity());
+            Log.fine("Attempting to purchase: " + pair.getName() + " for " + pair.getQuantity());
             if (!purchase(pair)) {
                 break;
             } else {
@@ -125,7 +126,7 @@ public class GrandExchangePurchaser {
             return false;
         }
         int count = PlayerHelper.getTotalCount(pair.getName());
-        System.out.println("Count " + count + " " + pair.getName());
+        Log.fine("Count " + count + " " + pair.getName());
         return count < pair.getQuantity();
     }
 
@@ -144,7 +145,7 @@ public class GrandExchangePurchaser {
         if (GrandExchange.isOpen()) {
             return true;
         }
-        System.out.println("Attempting to open Grand Exchange");
+        Log.fine("Attempting to open Grand Exchange");
         if (Bank.isOpen()) {
             Bank.close();
         }

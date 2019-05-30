@@ -16,6 +16,7 @@ import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
+import org.rspeer.ui.Log;
 
 import java.util.HashSet;
 
@@ -56,7 +57,7 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
-        System.out.println("Walking to " + p.toString());
+        Log.fine("Walking to " + p.toString());
         Store.setStatus("Destination distance: " + p.distance());
         if(useHomeTeleport && timeTillTeleport < System.currentTimeMillis()) {
             if(!useHomeTeleport(p)) {
@@ -141,12 +142,12 @@ public class CustomWalker implements ChatMessageListener  {
         if(e.getType() != ChatMessageType.GAME && e.getType() != ChatMessageType.SERVER) {
             return;
         }
-        System.out.println(e.getMessage());
+        Log.fine(e.getMessage());
         if(e.getMessage().contains("You need to wait another ")) {
             int minutes = Integer.parseInt(e.getMessage().replace("You need to wait another", "")
                     .replace("minutes to cast this spell.", "").trim());
             timeTillTeleport = System.currentTimeMillis() + (minutes * 60000);
-            System.out.println("Can't teleport for at-least " + minutes + " minutes.");
+            Log.fine("Can't teleport for at-least " + minutes + " minutes.");
         }
     }
 }

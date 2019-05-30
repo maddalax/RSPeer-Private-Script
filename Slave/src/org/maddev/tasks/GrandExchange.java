@@ -15,6 +15,7 @@ import org.rspeer.runetek.api.component.tab.Skills;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;
+import org.rspeer.ui.Log;
 
 public class GrandExchange extends Task implements TaskChangeListener {
 
@@ -79,7 +80,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
     }
 
     private boolean getCraftingSupplies() {
-        System.out.println("Getting crafting supplies.");
+        Log.fine("Getting crafting supplies.");
 
         int leatherNeeded = CraftingHelper.getQuantityNeeded(7, CraftingHelper.LEATHER_GLOVES_XP)
                 + CraftingHelper.getQuantityNeeded(10, CraftingHelper.LEATHER_BOOTS_XP);
@@ -101,7 +102,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
     }
 
     private boolean getWoodcuttingSupplies() {
-        System.out.println("Attempting to purchase woodcutting suppies.");
+        Log.fine("Attempting to purchase woodcutting suppies.");
         // Clear from crafting purchasing.
         if(purchaser != null && purchaser.hasItem("Leather")) {
             purchaser = null;
@@ -119,7 +120,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
     }
 
     private boolean getLostCitySupplies() {
-        System.out.println("Attempting to purchase lost city supplies.");
+        Log.fine("Attempting to purchase lost city supplies.");
         // Clear from crafting purchasing.
         if(purchaser != null && !purchaser.hasItem("Mind rune")) {
             purchaser = null;
@@ -143,7 +144,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
     }
 
     private boolean getHuntingSupplies() {
-        System.out.println("Attempting to purchase hunting supplies.");
+        Log.fine("Attempting to purchase hunting supplies.");
         // Clear from crafting purchasing.
         if(purchaser != null && !purchaser.hasItem("Bird snare")) {
             purchaser.clear();
@@ -180,7 +181,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
         hasRunes = hasRunes && PlayerHelper.getTotalCount("Water rune") >= 300;
         hasRunes = hasRunes && PlayerHelper.getTotalCount("Fire rune") >= 200;
         if(!hasRunes) {
-            System.out.println("Does not have all the runes!");
+            Log.fine("Does not have all the runes!");
             return false;
         }
         return PlayerHelper.hasAll("Knife")
@@ -191,9 +192,9 @@ public class GrandExchange extends Task implements TaskChangeListener {
     @Override
     public void notify(Task task, Task curr) {
         if (this.equals(curr)) {
-            System.out.println("We are now active.");
+            Log.fine("We are now active.");
         } else {
-            System.out.println("We are not active.");
+            Log.fine("We are not active.");
         }
     }
 }

@@ -3,6 +3,7 @@ package org.maddev.helpers.equipment;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.component.tab.Equipment;
 import org.rspeer.runetek.api.component.tab.Inventory;
+import org.rspeer.ui.Log;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ public class EquipmentHelper {
         List<String> glories = Arrays.asList(EquipmentHelper.getChargedGlories());
         Item[] equipmentItems = Equipment.getItems(i -> glories.contains(i.getName()));
         if(equipmentItems.length > 0) {
-            System.out.println("Is from equipment");
+            Log.fine("Is from equipment");
             return equipmentItems[0];
         }
         return Inventory.getFirst(i -> glories.contains(i.getName()));
