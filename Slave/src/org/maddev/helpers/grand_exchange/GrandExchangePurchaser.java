@@ -125,6 +125,7 @@ public class GrandExchangePurchaser {
             return false;
         }
         int count = PlayerHelper.getTotalCount(pair.getName());
+        System.out.println("Count " + count + " " + pair.getName());
         return count < pair.getQuantity();
     }
 

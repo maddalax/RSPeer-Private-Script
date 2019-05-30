@@ -21,6 +21,7 @@ public class SubmitTasks extends Task {
     private GrandExchange exchange;
     private MuseumQuiz quiz;
     private Hunting hunting;
+    private LostCity lostCity;
 
     public SubmitTasks(TaskScript instance) {
         this.instance = instance;
@@ -29,6 +30,7 @@ public class SubmitTasks extends Task {
         this.exchange = new GrandExchange();
         this.quiz = new MuseumQuiz();
         this.hunting = new Hunting();
+        this.lostCity = new LostCity();
         this.submitted = new ArrayList<>();
     }
 
@@ -55,7 +57,8 @@ public class SubmitTasks extends Task {
             submitOnce(woodcutting);
         }
 
-        submitOnce(exchange);
+        //TODO add back
+        //submitOnce(exchange);
         if(!quiz.isDone()) {
             submitOnce(quiz);
         }
@@ -63,6 +66,7 @@ public class SubmitTasks extends Task {
         submitOnce(crafting);
         submitOnce(woodcutting);
         submitOnce(hunting);
+        submitOnce(lostCity);
 
         submittedTasks = true;
         instance.remove(this);

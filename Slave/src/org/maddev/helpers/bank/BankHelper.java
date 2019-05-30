@@ -3,10 +3,13 @@ package org.maddev.helpers.bank;
 import org.maddev.Store;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.walking.MovementHelper;
+import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
+
+import java.util.function.Predicate;
 
 public class BankHelper {
 
@@ -52,10 +55,18 @@ public class BankHelper {
 
 
     public static boolean withdraw(BankLocation location, boolean useHomeTeleport, String item, int quantity) {
-        if(Inventory.contains(item)) {
+        return withdraw(location, useHomeTeleport, compare -> compare.getName().equals(item), quantity);
+    }
+
+    public static boolean withdraw(Predicate<Item> predicate, int quantity) {
+        return withdraw(nearest(), false, predicate, quantity);
+    }
+
+    public static boolean withdraw(BankLocation location, boolean useHomeTeleport, Predicate<Item> predicate, int quantity) {
+        if(Inventory.contains(predicate)) {
             return true;
         }
-        Store.setStatus("Withdrawing " + item + ".");
+        Store.setStatus("Withdrawing item via predicate.");
         if(!Bank.isOpen()) {
             open(location, useHomeTeleport);
             return false;
@@ -64,12 +75,12 @@ public class BankHelper {
             Bank.depositInventory();
             Time.sleep(490, 759);
         }
-        if(!Bank.contains(item)) {
+        if(!Bank.contains(predicate)) {
             return false;
         }
-        Bank.withdraw(item, quantity);
+        Bank.withdraw(predicate, quantity);
         Time.sleep(490, 759);
-        return Inventory.contains(item);
+        return Inventory.contains(predicate);
     }
 
     public static boolean withdrawAll(String item) {
@@ -77,7 +88,10 @@ public class BankHelper {
     }
 
     public static boolean withdrawAll(String item, BankLocation location, boolean useHomeTeleport) {
-        if(Inventory.contains(item)) {
+        if(Inventory.isFull()) {
+            return true;
+        }
+        if(Inventory.contains(item) && Bank.getCount(item) < Inventory.getCount(item)) {
             return true;
         }
         Store.setStatus("Withdrawing " + item + ".");
@@ -95,6 +109,20 @@ public class BankHelper {
         Bank.withdrawAll(item);
         Time.sleep(490, 759);
         return Inventory.contains(item);
+    }
+
+    public static boolean depositAllExcept(BankLocation location, Predicate<Item> predicate) {
+        if(Inventory.containsOnly(predicate)) {
+            return true;
+        }
+        if(!Bank.isOpen()) {
+            BankHelper.open(location);
+            Time.sleep(450, 850);
+            return false;
+        }
+        Bank.depositAllExcept(predicate);
+        Time.sleep(450, 850);
+        return Inventory.containsOnly(predicate);
     }
 
 }

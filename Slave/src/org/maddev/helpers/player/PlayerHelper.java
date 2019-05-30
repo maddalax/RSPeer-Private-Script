@@ -8,8 +8,8 @@ public class PlayerHelper {
 
     public static int getTotalCount(String name) {
         int count = BankCache.getCount(name);
-        count += Inventory.getCount(name);
-        count += Equipment.getCount(name);
+        count += Inventory.getCount(true, name);
+        count += Equipment.getCount(true, name);
         return count;
     }
 

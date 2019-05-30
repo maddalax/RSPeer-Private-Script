@@ -56,6 +56,7 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
+        System.out.println("Walking to " + p.toString());
         Store.setStatus("Destination distance: " + p.distance());
         if(useHomeTeleport && timeTillTeleport < System.currentTimeMillis()) {
             if(!useHomeTeleport(p)) {

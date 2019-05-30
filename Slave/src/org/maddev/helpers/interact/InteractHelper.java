@@ -12,7 +12,7 @@ public class InteractHelper {
         if(interactable == null) {
             return false;
         }
-        if(Movement.isDestinationSet() && Movement.getDestinationDistance() > 2) {
+        if(Players.getLocal().isMoving() && Movement.isDestinationSet() && Movement.getDestinationDistance() > 2) {
             Time.sleep(450, 850);
             return false;
         }

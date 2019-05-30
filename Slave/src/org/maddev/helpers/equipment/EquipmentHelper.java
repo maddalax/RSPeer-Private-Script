@@ -1,5 +1,12 @@
 package org.maddev.helpers.equipment;
 
+import org.rspeer.runetek.adapter.component.Item;
+import org.rspeer.runetek.api.component.tab.Equipment;
+import org.rspeer.runetek.api.component.tab.Inventory;
+
+import java.util.Arrays;
+import java.util.List;
+
 public class EquipmentHelper {
 
     public static String[] getChargedGlories() {
@@ -18,6 +25,25 @@ public class EquipmentHelper {
             names[i] = name;
         }
         return names;
+    }
+
+    public static Item getChargedGlory() {
+        List<String> glories = Arrays.asList(EquipmentHelper.getChargedGlories());
+        Item[] equipmentItems = Equipment.getItems(i -> glories.contains(i.getName()));
+        if(equipmentItems.length > 0) {
+            System.out.println("Is from equipment");
+            return equipmentItems[0];
+        }
+        return Inventory.getFirst(i -> glories.contains(i.getName()));
+    }
+
+    public static Item getChargedGamesNecklace() {
+        List<String> games = Arrays.asList(EquipmentHelper.getGamesNecklaces());
+        Item[] equipmentItems = Equipment.getItems(i -> games.contains(i.getName()));
+        if(equipmentItems.length > 0) {
+            return equipmentItems[0];
+        }
+        return Inventory.getFirst(i -> games.contains(i.getName()));
     }
 
 }

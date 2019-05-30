@@ -6,6 +6,7 @@ import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.walking.paths.LumbridgeHut;
 import org.maddev.tasks.SubmitTasks;
 import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.Varps;
 import org.rspeer.runetek.api.Worlds;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.event.listeners.BankLoadListener;
@@ -53,6 +54,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         if(Store.getStatus() != null) {
             g.drawString("Status: " + Store.getStatus(), 320, 45);
         }
+        g.drawString("Varp: " + Varps.get(147), 320, 65);
     }
 
     @Override
