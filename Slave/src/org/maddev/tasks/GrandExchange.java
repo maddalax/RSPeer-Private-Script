@@ -43,6 +43,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
 
     @Override
     public int execute() {
+        Log.info("Grand Exchange");
         if (walkTo()) {
             return Random.nextInt(350, 550);
         }
@@ -101,7 +102,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
             purchaser = new GrandExchangePurchaser();
             ItemPair leather = new ItemPair("Leather", leatherNeeded, 2);
             ItemPair thread = new ItemPair("Thread", threadCount, 2);
-            ItemPair needle = new ItemPair("Needle", 1, 3);
+            ItemPair needle = new ItemPair("Needle", 1, 10);
             ItemPair flax = new ItemPair("Flax", flaxCount, 2);
             if(Skills.getCurrentLevel(Skill.CRAFTING) < 10) {
                 purchaser.addItem(leather);

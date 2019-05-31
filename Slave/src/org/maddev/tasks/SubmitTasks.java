@@ -45,6 +45,7 @@ public class SubmitTasks extends Task {
         }
 
         submitOnce(new SetRun());
+        submitOnce(new DepositStartingItems());
 
         if(Hunting.MIDDLE.distance() < 300) {
             submitOnce(hunting);

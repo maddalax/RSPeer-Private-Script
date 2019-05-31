@@ -61,6 +61,13 @@ public class GrandExchangePurchaser {
             return false;
         }
 
+        if(!GrandExchangeSetup.getItem().getName().equals(pair.getName())) {
+            Log.fine("Attempting to set item");
+            GrandExchangeSetup.setItem(pair.getName());
+            Time.sleep(500, 1000);
+            return false;
+        }
+
         int current = PlayerHelper.getTotalCount(pair.getName());
         int quantity = pair.getQuantity() - current;
         if (GrandExchangeSetup.getQuantity() != quantity) {
@@ -112,11 +119,12 @@ public class GrandExchangePurchaser {
             }
             Log.fine("Attempting to purchase: " + pair.getName() + " for " + pair.getQuantity());
             if (!purchase(pair)) {
+                Time.sleep(1000, 1800);
                 break;
             } else {
                 pairs.remove(pair);
             }
-            Time.sleep(1000, 1500);
+            Time.sleep(1500, 2500);
         }
         return purchaseCount == pairs.size();
     }

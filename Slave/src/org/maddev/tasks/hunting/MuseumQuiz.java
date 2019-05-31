@@ -141,6 +141,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         list.add("Nematocysts.");
         list.add("The researchers keep vanishing.");
         list.add("Seaweed.");
+        list.add("Defense or display.");
         list.add("Defence or display.");
         list.add("Ardougne.");
         list.add("They have a hard shell.");
