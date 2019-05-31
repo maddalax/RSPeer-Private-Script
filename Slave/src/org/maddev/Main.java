@@ -28,9 +28,6 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
 
     @Override
     public void onStart() {
-        setAccount(new GameAccount("Chubbyownzaa+11@gmail.com", "maddev11"));
-        Game.getClient().setWorld(Worlds.get(s -> s.isMembers() && !s.isSkillTotal()
-                && !s.isTournament()));
         GameCanvas.setInputEnabled(true);
 
         submit(new SubmitTasks(this));
