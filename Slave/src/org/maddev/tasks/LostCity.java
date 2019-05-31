@@ -65,6 +65,8 @@ public class LostCity extends Task implements RenderListener {
 
         int varp = Varps.get(147);
 
+        Log.fine("Varp: " + varp);
+
         if (!withdrawItems(varp)) {
             return;
         }
@@ -297,12 +299,27 @@ public class LostCity extends Task implements RenderListener {
     }
 
     private void interactTree() {
+        if(!Inventory.contains(s -> s.getName().contains("axe") && !s.isNoted())) {
+            BankHelper.withdrawOnly(BankLocation.DRAYNOR, true, new ItemPair("Adamant axe", 1));
+            Time.sleep(230,650);
+            return;
+        }
         Npc shamus = Npcs.getNearest("Shamus");
+        Log.fine("Looking for Shamus.");
         if (shamus == null) {
-            SceneObject tree = SceneObjects.getNearest(s -> s.getName().equals("Tree") && s.containsAction("Chop"));
+            Position treePosition = new Position(3139, 3211, 0);
+            SceneObject tree = SceneObjects.getNearest(s -> s.getName().equals("Tree") && s.containsAction("Chop") && treePosition.distance(s.getPosition()) < 10);
             if (tree == null) {
+                Log.fine("Shamus is null and so is tree, walking to it.");
                 MovementHelper.walkRandomized(new Position(3139, 3211, 0), false);
                 Time.sleep(230, 545);
+                return;
+            }
+            Log.fine("Shamus is null, tree has been found.");
+            if(tree.distance() > 5) {
+                MovementHelper
+                        .walkRandomized(tree.getPosition(), false);
+
                 return;
             }
             InteractHelper.interact(tree, "Chop");
