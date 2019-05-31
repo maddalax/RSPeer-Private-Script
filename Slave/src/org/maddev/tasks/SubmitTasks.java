@@ -3,7 +3,6 @@ package org.maddev.tasks;
 import org.maddev.tasks.hunting.Hunting;
 import org.maddev.tasks.hunting.MuseumQuiz;
 import org.rspeer.runetek.api.Game;
-import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskScript;
 
@@ -45,11 +44,13 @@ public class SubmitTasks extends Task {
             return 200;
         }
 
-        if(Inventory.contains("Bird snare") || Hunting.MIDDLE.isLoaded()) {
+        submitOnce(new SetRun());
+
+        if(Hunting.MIDDLE.distance() < 300) {
             submitOnce(hunting);
         }
 
-        if(!quiz.isDone() && quiz.inBasement()) {
+        if(quiz.inBasement()) {
             submitOnce(quiz);
         }
 
@@ -57,6 +58,7 @@ public class SubmitTasks extends Task {
             submitOnce(woodcutting);
         }
 
+        submitOnce(new EquipGlory());
         submitOnce(exchange);
         if(!quiz.isDone()) {
             submitOnce(quiz);

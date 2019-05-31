@@ -3,10 +3,10 @@ package org.maddev;
 import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.walking.CustomPath;
 import org.maddev.helpers.walking.MovementHelper;
+import org.maddev.helpers.walking.paths.HuntingHillGiants;
 import org.maddev.helpers.walking.paths.LumbridgeHut;
 import org.maddev.tasks.SubmitTasks;
 import org.rspeer.runetek.api.Game;
-import org.rspeer.runetek.api.Varps;
 import org.rspeer.runetek.api.Worlds;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.event.listeners.BankLoadListener;
@@ -28,7 +28,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
 
     @Override
     public void onStart() {
-        setAccount(new GameAccount("rockstar_sugarfree2@maddev.me", "hykjmjrj11"));
+        setAccount(new GameAccount("Chubbyownzaa+10@gmail.com", "maddev11"));
         Game.getClient().setWorld(Worlds.get(s -> s.isMembers() && !s.isSkillTotal()
                 && !s.isTournament()));
         GameCanvas.setInputEnabled(true);
@@ -36,6 +36,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         submit(new SubmitTasks(this));
 
         MovementHelper.addCustomPath(new LumbridgeHut());
+        MovementHelper.addCustomPath(new HuntingHillGiants());
     }
 
     @Override

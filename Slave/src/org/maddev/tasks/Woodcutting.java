@@ -1,7 +1,9 @@
 package org.maddev.tasks;
 
+import org.maddev.Config;
 import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
+import org.maddev.helpers.equipment.EquipmentHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
 import org.maddev.helpers.walking.MovementHelper;
@@ -17,6 +19,7 @@ import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 import java.util.function.Predicate;
 
@@ -26,13 +29,13 @@ public class Woodcutting extends Task {
 
     @Override
     public boolean validate() {
-        return Skills.getCurrentLevel(Skill.WOODCUTTING) < 36;
+        return Skills.getCurrentLevel(Skill.WOODCUTTING) < Config.WOODCUTTING_REQUIRED;
     }
 
     @Override
     public int execute() {
         int loop = Random.nextInt(350, 850);
-        if(!BankHelper.withdraw(BankLocation.DRAYNOR, true,
+        if(!BankHelper.withdrawOnly(BankLocation.DRAYNOR, true,
                 new ItemPair("Iron axe", 1),
                 new ItemPair("Steel axe", 1),
                 new ItemPair("Mithril axe", 1),
@@ -46,7 +49,8 @@ public class Woodcutting extends Task {
 
         if(TREES.distance() > 50) {
             Store.setStatus("Walking to trees.");
-            MovementHelper.walkRandomized(TREES, false, !TREES.isLoaded() || TREES.distance() > 200);
+
+            MovementHelper.walkRandomized(TREES, false, TREES.distance() > 300);
             return loop;
         }
 

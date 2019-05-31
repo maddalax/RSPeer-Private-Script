@@ -57,8 +57,7 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
-        Log.fine("Walking to " + p.toString());
-        Store.setStatus("Destination distance: " + p.distance());
+        Log.fine("Walking to " + p.toString() + " " + p.distance());
         if(useHomeTeleport && timeTillTeleport < System.currentTimeMillis()) {
             if(!useHomeTeleport(p)) {
                 return false;
@@ -71,6 +70,15 @@ public class CustomWalker implements ChatMessageListener  {
     public boolean walk(Position p, boolean acceptEndBlocked) {
 
         if(isWalkingCustomPath(currentCustomPath)) {
+            if(!currentCustomPath.didWalkToStart() && currentCustomPath.startPosition() != null) {
+                if(Players.getLocal().getPosition().equals(currentCustomPath.startPosition())) {
+                    currentCustomPath.setWalkedtoStart(true);
+                } else {
+                    MovementHelper.setWalkFlag(currentCustomPath.startPosition());
+                    Log.fine("Walking to start position.");
+                }
+                return false;
+            }
             return shouldWalk() || currentCustomPath.getPath().walk(acceptEndBlocked);
         }
 
@@ -112,6 +120,9 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean isWalkingCustomPath(CustomPath path) {
+        if(path != null && !path.didWalkToStart() && path.startPosition() != null) {
+            return true;
+        }
         return path != null && path.getPath() != null
                 && path.getPath().getCurrent() != null;
     }

@@ -1,13 +1,19 @@
 package org.maddev.tasks.hunting;
 
+import org.maddev.Config;
 import org.maddev.State;
 import org.maddev.Store;
+import org.maddev.helpers.bank.BankHelper;
+import org.maddev.helpers.equipment.EquipmentHelper;
+import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.walking.MovementHelper;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.Pickable;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Inventory;
@@ -44,7 +50,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
     @Override
     public boolean validate() {
         int level = Skills.getCurrentLevel(Skill.HUNTER);
-        return level >= 9 && level < 17;
+        return level >= 9 && level < Config.HUNTING_REQUIRED;
     }
 
     @Override
@@ -54,6 +60,13 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
     }
 
     private void doExecute() {
+
+        if(MIDDLE.distance() > 600 || !Inventory.contains(s -> s.getName().equals("Bird snare") && !s.isNoted())) {
+            Log.fine("Getting supplies.");
+            getSupplies();
+            return;
+        }
+
         Store.setStatus("Hunting");
         if(!MIDDLE.isLoaded()) {
             Log.fine("Walking to middle.");
@@ -121,6 +134,26 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         if(!Players.getLocal().isAnimating()) {
             placeTrap();
         }
+    }
+
+    private boolean getSupplies() {
+        String games = PlayerHelper.getFirst(EquipmentHelper.getGamesNecklaces());
+        if(games == null) {
+            Store.setStatus("No games necklace found.");
+            return false;
+        }
+        if(!BankHelper.withdrawOnly(BankLocation.getNearest(), true,
+                new ItemPair(games, 1),
+                new ItemPair("Bird snare", Integer.MAX_VALUE))) {
+            return false;
+        }
+
+        if(!Players.getLocal().isAnimating()) {
+            EquipmentHelper.teleportNecklace(false, "Barbarian Outpost");
+            Time.sleep(850, 1500);
+        }
+
+        return false;
     }
 
     private void placeTrap() {

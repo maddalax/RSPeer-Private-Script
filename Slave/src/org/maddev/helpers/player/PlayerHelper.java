@@ -31,5 +31,14 @@ public class PlayerHelper {
         return false;
     }
 
+    public static String getFirst(String ... names) {
+        for (String name : names) {
+            if(BankCache.contains(name) || Inventory.contains(name) || Equipment.contains(name)) {
+                return name;
+            }
+        }
+        return null;
+    }
+
 }
 

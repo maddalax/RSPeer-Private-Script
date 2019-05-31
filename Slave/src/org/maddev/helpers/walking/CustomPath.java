@@ -6,6 +6,15 @@ import org.rspeer.runetek.api.movement.position.Position;
 public abstract class CustomPath {
 
     private PredefinedPath path;
+    private boolean walkedtoStart;
+
+    public void setWalkedtoStart(boolean walkedtoStart) {
+        this.walkedtoStart = walkedtoStart;
+    }
+
+    public boolean didWalkToStart() {
+        return walkedtoStart;
+    }
 
     void setPath(PredefinedPath path) {
         this.path = path;
@@ -20,5 +29,8 @@ public abstract class CustomPath {
     public abstract Position[] getPositions();
 
     public abstract String getName();
+
+    public abstract Position startPosition();
+
 }
 

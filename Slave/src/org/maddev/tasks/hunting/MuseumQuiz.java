@@ -16,7 +16,6 @@ import org.rspeer.runetek.api.component.Dialog;
 import org.rspeer.runetek.api.component.Interfaces;
 import org.rspeer.runetek.api.component.tab.Skill;
 import org.rspeer.runetek.api.component.tab.Skills;
-import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Area;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Npcs;
@@ -28,23 +27,16 @@ import org.rspeer.script.task.Task;
 import org.rspeer.ui.Log;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class MuseumQuiz extends Task implements ChatMessageListener {
 
     private QuizDisplay animal;
-    private EnumSet<QuizDisplay> enumSet = EnumSet.allOf(QuizDisplay.class);
-    private Iterator<QuizDisplay> i = enumSet.stream().iterator();
-    private QuizDisplay theItem = i.next();
     private static final int quizVarp = 1010;
     private static final int completedVarp = 1014;
-    private int config = 2048;
     private Player me;
     private InterfaceComponent questionScreen;
-    private String l;
 
     public static final Area MUSEUM_AREA = Area.rectangular(new Position(3254, 3447, 0), new Position(3258, 3455, 0));
     private static final Position ORLANDO_POSITION = new Position(1712, 4912);
@@ -54,7 +46,10 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
 
     @Override
     public boolean validate() {
-        if(Skills.getCurrentLevel(Skill.HUNTER) > 10) {
+        if(isDone() && inBasement()) {
+            return true;
+        }
+        if(Skills.getCurrentLevel(Skill.HUNTER) >= 9) {
             return false;
         }
         return !isDone() || inBasement();
@@ -67,19 +62,25 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     }
 
     private void doExecute() {
+        if(isDone() && inBasement()) {
+            Store.setStatus("Exiting basement.");
+            exitBasement();
+            return;
+        }
         Store.setStatus("Solving quiz.");
         questionScreen = Interfaces.getComponent(533, 28);
         me = Players.getLocal();
+        animal = QuizDisplay.getCurrent();
 
         if (Dialog.canContinue()) {
-            Dialog.getContinue();
+            Dialog.processContinue();
             return;
         }
         if (!inBasement()) {
             getToBasement();
             return;
         }
-        if (finishedQuiz()) {
+        if (didFinishQuiz()) {
             talkToOrlando();
             list.clear();
             Log.info("Finished Museum Quiz.");
@@ -89,7 +90,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
             startQuiz();
             return;
         }
-        solve(theItem);
+        solve();
     }
 
     public MuseumQuiz() {
@@ -200,8 +201,8 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     public void notify(ChatMessageEvent event) {
         if(Store.getState() == State.SCRIPT_STOPPED) {
             Game.getEventDispatcher().deregister(this);
+            return;
         }
-        l = event.getMessage();
     }
 
     private void getToBasement() {
@@ -216,7 +217,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         if (atDisplay()) {
             openQuiz();
         } else {
-            Movement.walkTo(animal.getDisplay());
+            MovementHelper.walkRandomized(animal.getDisplay(), false);
             Time.sleepUntil(() -> me.getPosition().equals(animal.getDisplay()), 4500);
         }
     }
@@ -243,6 +244,18 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         Time.sleep(250, 550);
     }
 
+    private void exitBasement() {
+        SceneObject stairs = SceneObjects.getFirstAt(new Position(1758, 4959, 0));
+        Log.fine("Exiting basement.");
+        if (stairs == null) {
+            MovementHelper.walkRandomized(ORLANDO_POSITION, false);
+            Time.sleep(850, 1500);
+            return;
+        }
+        InteractHelper.interact(stairs, "Walk-up");
+        Time.sleepUntil(this::inBasement, 2500);
+    }
+
     private void goDownStairs() {
         SceneObject stairs = SceneObjects.getFirstAt(new Position(3255, 3451));
         if (stairs == null) {
@@ -254,8 +267,8 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     }
 
     private void walkToOrlando() {
-        Movement.walkToRandomized(ORLANDO_POSITION);
-        Time.sleep(1200, 2600);
+        MovementHelper.walkRandomized(ORLANDO_POSITION, false);
+        Time.sleep(1200, 2000);
     }
 
     private void talkToOrlando() {
@@ -272,8 +285,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         Time.sleepUntil(Dialog::isOpen, 3500);
     }
 
-    private void solve(QuizDisplay animal) {
-        this.animal = animal;
+    private void solve() {
         if (!atDisplay()) {
             walkToDisplay();
             return;
@@ -284,10 +296,6 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         }
         if (!inQuiz()) {
             openQuiz();
-            return;
-        }
-        if (solvedDisplay()) {
-            nextDisplay();
             return;
         }
         clickAnswer();
@@ -310,28 +318,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         }
     }
 
-    private void nextDisplay() {
-        config = Varps.get(quizVarp);
-        if (i.hasNext()) {
-            theItem = i.next();
-        } else {
-            i = enumSet.stream().iterator();
-        }
-    }
-
-    private boolean solvedDisplay() {
-        return Varps.get(quizVarp) != config || completedMsg();
-    }
-
-    private boolean completedMsg() {
-        if (l != null) {
-            return l.contains(theItem.getChatMsg());
-        } else {
-            return false;
-        }
-    }
-
-    private boolean finishedQuiz() {
+    private boolean didFinishQuiz() {
         return Varps.get(quizVarp) == 2076;
     }
 
@@ -344,7 +331,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     }
 
     private boolean atDisplay() {
-        return Players.getLocal().getPosition().equals(animal.getDisplay());
+        return animal.getDisplay().distance() <= 2;
     }
 
     private boolean inQuiz() {
@@ -352,7 +339,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     }
 
     public boolean isDone() {
-        return getProgress() == -1073741826;
+        return Varps.get(quizVarp) == 2076 && Skills.getCurrentLevel(Skill.HUNTER) >= 9;
     }
 
     public boolean inBasement() {

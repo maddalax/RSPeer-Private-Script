@@ -9,7 +9,10 @@ import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class BankHelper {
 
@@ -40,6 +43,23 @@ public class BankHelper {
     }
 
     public static boolean withdraw(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
+        for (ItemPair item : pair) {
+            boolean isAll = item.getQuantity() == Integer.MAX_VALUE;
+            if(!(isAll ? withdrawAll(item.getName(), location, useHomeTeleport) : withdraw(item.getName(), item.getQuantity()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean withdrawOnly(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
+        List<String> names = Arrays.stream(pair).map(ItemPair::getName).collect(Collectors.toList());
+        if(Bank.isOpen()) {
+            if(!Bank.depositAllExcept(s -> names.contains(s.getName()) && !s.isNoted())) {
+                return false;
+            }
+            Time.sleep(230, 560);
+        }
         for (ItemPair item : pair) {
             boolean isAll = item.getQuantity() == Integer.MAX_VALUE;
             if(!(isAll ? withdrawAll(item.getName(), location, useHomeTeleport) : withdraw(item.getName(), item.getQuantity()))) {

@@ -47,4 +47,9 @@ public class LumbridgeHut extends CustomPath {
     public String getName() {
         return "Lumbridge Hut";
     }
+
+    @Override
+    public Position startPosition() {
+        return null;
+    }
 }

@@ -10,7 +10,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../../RSPeer-Client/rspeer-client/target/rspeer-client-1.0-jar-with-dependencies-obb.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../RSPeer-Client/rspeer-client/target/rspeer 2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
