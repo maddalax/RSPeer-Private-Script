@@ -19,7 +19,7 @@ public class DepositStartingItems extends Task {
     public int execute() {
         Log.fine("Depositing Starting Items.");
         if(!Bank.isOpen()) {
-            BankHelper.open(BankLocation.getNearest());
+            BankHelper.open(BankLocation.GRAND_EXCHANGE);
             return Random.nextInt(550, 1150);
         }
         Bank.depositInventory();
