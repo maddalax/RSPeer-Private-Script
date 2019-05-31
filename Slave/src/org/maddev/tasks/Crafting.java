@@ -25,6 +25,7 @@ import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.runetek.event.listeners.AnimationListener;
 import org.rspeer.runetek.event.types.AnimationEvent;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 import java.util.function.Predicate;
 
@@ -114,6 +115,7 @@ public class Crafting extends Task implements AnimationListener {
     }
 
     private void spinFlax() {
+        Log.fine("Spinning flax.");
         Predicate<Item> flax = i -> i.getName().equals("Flax") && !i.isNoted();
         if (!Inventory.contains(flax) && !isAnimationDone(4000)) {
             //Ran out of flax, but we are still animating, just sleep a little bit so it doesnt look suspicious

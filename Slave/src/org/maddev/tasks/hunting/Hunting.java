@@ -60,7 +60,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
     }
 
     private void doExecute() {
-
+        Log.fine("Hunting.");
         if(MIDDLE.distance() > 600 || !Inventory.contains(s -> s.getName().equals("Bird snare") && !s.isNoted())) {
             Log.fine("Getting supplies.");
             getSupplies();

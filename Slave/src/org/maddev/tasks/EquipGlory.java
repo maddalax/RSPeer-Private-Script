@@ -9,6 +9,7 @@ import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Equipment;
 import org.rspeer.runetek.api.component.tab.EquipmentSlot;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 public class EquipGlory extends Task {
 
@@ -26,6 +27,7 @@ public class EquipGlory extends Task {
 
     @Override
     public int execute() {
+        Log.fine("Equipping amulet glory.");
         Item exists = EquipmentHelper.getChargedGlory();
         if(exists == null) {
             for (String glory : EquipmentHelper.getChargedGlories()) {

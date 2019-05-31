@@ -6,6 +6,7 @@ import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 public class DepositStartingItems extends Task {
 
@@ -16,6 +17,7 @@ public class DepositStartingItems extends Task {
 
     @Override
     public int execute() {
+        Log.fine("Depositing Starting Items.");
         if(!Bank.isOpen()) {
             BankHelper.open(BankLocation.getNearest());
             return Random.nextInt(550, 1150);

@@ -27,23 +27,35 @@ public class GrandExchange extends Task implements TaskChangeListener {
     @Override
     public boolean validate() {
         if (Skills.getCurrentLevel(Skill.CRAFTING) < Config.CRAFTING_REQUIRED) {
-            if(!hasCraftingSupplies()) return true;
+            if(!hasCraftingSupplies()) {
+                Log.fine("Getting Crafting Supplies.");
+                return true;
+            }
         }
         if (Skills.getCurrentLevel(Skill.WOODCUTTING) < Config.WOODCUTTING_REQUIRED) {
-            if(!hasWoodcuttingSupplies()) return true;
+            if(!hasWoodcuttingSupplies()) {
+                Log.fine("Getting Woodcutting Supplies.");
+                return true;
+            }
         }
         if (Skills.getCurrentLevel(Skill.HUNTER) < Config.HUNTING_REQUIRED) {
-            if(!hasHuntingSupplies()) return true;
+            if(!hasHuntingSupplies()) {
+                Log.fine("Getting Hunting Supplies.");
+                return true;
+            }
         }
         if (!LostCity.isComplete()) {
-            if(!hasLostCitySupplies()) return true;
+            if(!hasLostCitySupplies()) {
+                Log.fine("Getting Lost City Supplies.");
+                return true;
+            }
         }
         return false;
     }
 
     @Override
     public int execute() {
-        Log.info("Grand Exchange");
+        Log.fine("Grand Exchange");
         if (walkTo()) {
             return Random.nextInt(350, 550);
         }
@@ -109,9 +121,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
                 purchaser.addItem(thread);
                 purchaser.addItem(needle);
             }
-            else {
-                purchaser.addItem(flax);
-            }
+            purchaser.addItem(flax);
         }
         return purchaser.purchase();
     }

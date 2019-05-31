@@ -62,6 +62,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     }
 
     private void doExecute() {
+        Log.fine("Solving quiz.");
         if(isDone() && inBasement()) {
             Store.setStatus("Exiting basement.");
             exitBasement();

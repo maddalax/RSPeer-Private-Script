@@ -34,6 +34,7 @@ public class Woodcutting extends Task {
 
     @Override
     public int execute() {
+        Log.fine("Woodcutting.");
         int loop = Random.nextInt(350, 850);
         if(!BankHelper.withdrawOnly(BankLocation.DRAYNOR, true,
                 new ItemPair("Iron axe", 1),
