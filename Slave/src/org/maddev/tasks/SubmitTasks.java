@@ -3,7 +3,7 @@ package org.maddev.tasks;
 import org.maddev.Store;
 import org.maddev.tasks.hunting.Hunting;
 import org.maddev.tasks.hunting.MuseumQuiz;
-import org.maddev.tasks.zanaris.GoToZanaris;
+import org.maddev.tasks.zanaris.Zanaris;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.script.task.Task;
@@ -78,7 +78,7 @@ public class SubmitTasks extends Task {
         submitOnce(woodcutting);
         submitOnce(crafting);
         submitOnce(lostCity);
-        submitOnce(new GoToZanaris());
+        submitOnce(new Zanaris());
 
         submittedTasks = true;
         instance.remove(this);

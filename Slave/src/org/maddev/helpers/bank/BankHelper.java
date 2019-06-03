@@ -4,6 +4,7 @@ import org.maddev.Store;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.walking.MovementUtil;
+import org.maddev.helpers.zanris.ZanarisHelper;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
@@ -29,6 +30,9 @@ public class BankHelper {
     public static boolean open(BankLocation location, boolean useHomeTeleport) {
         if(location == null) {
             return false;
+        }
+        if(ZanarisHelper.inZanaris()) {
+            return ZanarisHelper.openZanarisBank();
         }
         if(location == BankLocation.LUMBRIDGE_CASTLE && Players.getLocal().getPosition().getFloorLevel() == 0) {
             Time.sleep(350, 650);

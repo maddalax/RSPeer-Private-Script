@@ -22,7 +22,7 @@ public class GrandExchangePurchaser {
     }
 
     public void addItem(ItemPair pair) {
-        if(hasItem(pair.getName())) {
+        if (hasItem(pair.getName())) {
             return;
         }
         pairs.add(pair);
@@ -34,7 +34,7 @@ public class GrandExchangePurchaser {
 
     public boolean hasItem(String name) {
         for (ItemPair pair : pairs) {
-            if(pair.getName().equals(name)) {
+            if (pair.getName().equals(name)) {
                 return true;
             }
         }
@@ -62,7 +62,7 @@ public class GrandExchangePurchaser {
             return false;
         }
 
-        if(!GrandExchangeSetup.getItem().getName().equals(pair.getName())) {
+        if (!GrandExchangeSetup.getItem().getName().equals(pair.getName())) {
             Store.setAction("Attempting to set item " + pair.getName());
             GrandExchangeSetup.setItem(pair.getName());
             Time.sleep(500, 1000);
@@ -82,12 +82,26 @@ public class GrandExchangePurchaser {
             pair.setOriginalPrice(GrandExchangeSetup.getPricePerItem());
         }
 
-        if(pair.getPriceMinimum() != 0 && GrandExchangeSetup.getPricePerItem() < pair.getPriceMinimum()) {
-            Store.setAction("Setting price.");
-            GrandExchangeSetup.setPrice(pair.getPriceMinimum());
+        if (pair.getPrice() != 0) {
+
+            if (GrandExchangeSetup.getPricePerItem() != pair.getPrice()) {
+                Store.setAction("Setting price to " + pair.getPrice() + ".");
+                GrandExchangeSetup.setPrice(pair.getPriceMinimum());
+                Time.sleep(100, 200);
+                return false;
+            }
+
         } else {
-            Store.setAction("Attempting to increase price.");
-            GrandExchangeSetup.increasePrice(pair.getIncreasePriceTimes());
+
+            if (pair.getPriceMinimum() != 0 && GrandExchangeSetup.getPricePerItem() < pair.getPriceMinimum()) {
+                Store.setAction("Setting price.");
+                GrandExchangeSetup.setPrice(pair.getPriceMinimum());
+                Time.sleep(100, 200);
+                return false;
+            } else {
+                Store.setAction("Attempting to increase price.");
+                GrandExchangeSetup.increasePrice(pair.getIncreasePriceTimes());
+            }
         }
 
         Time.sleep(1500, 2500);
@@ -139,10 +153,10 @@ public class GrandExchangePurchaser {
     }
 
     private boolean collect() {
-        if(GrandExchange.getOffers(s -> s.getProgress() == RSGrandExchangeOffer.Progress.FINISHED).length == 0) {
+        if (GrandExchange.getOffers(s -> s.getProgress() == RSGrandExchangeOffer.Progress.FINISHED).length == 0) {
             return false;
         }
-        if(!GrandExchange.isOpen()) {
+        if (!GrandExchange.isOpen()) {
             open();
             return false;
         }

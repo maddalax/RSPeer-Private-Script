@@ -7,6 +7,15 @@ public class ItemPair {
     private int increasePriceTimes;
     private int originalPrice;
     private int priceMinimum;
+    private int price;
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getPrice() {
+        return price;
+    }
 
     public String getName() {
         return name;

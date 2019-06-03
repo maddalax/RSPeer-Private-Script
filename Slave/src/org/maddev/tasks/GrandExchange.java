@@ -7,8 +7,11 @@ import org.maddev.helpers.crafting.CraftingHelper;
 import org.maddev.helpers.equipment.EquipmentHelper;
 import org.maddev.helpers.grand_exchange.GrandExchangePurchaser;
 import org.maddev.helpers.grand_exchange.ItemPair;
+import org.maddev.helpers.grand_exchange.PriceChecker;
 import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.walking.MovementHelper;
+import org.maddev.helpers.zanris.ZanarisHelper;
+import org.rspeer.runetek.api.Definitions;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
@@ -17,7 +20,12 @@ import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.component.tab.Skill;
 import org.rspeer.runetek.api.component.tab.Skills;
 import org.rspeer.runetek.api.movement.position.Position;
+import org.rspeer.runetek.providers.RSItemDefinition;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 public class GrandExchange extends Task {
 
@@ -49,7 +57,7 @@ public class GrandExchange extends Task {
                 return true;
             }
         }
-        if(!hasImplings()) {
+        if(!ZanarisHelper.inPuroPuro() && !hasImplings()) {
             return true;
         }
         return false;
@@ -92,7 +100,12 @@ public class GrandExchange extends Task {
         }
 
         if(!hasImplings()) {
-            getImplings();
+            try {
+                getImplings();
+            } catch (IOException e) {
+                Log.severe("Failed to calculate impling prices. Can not buy.");
+                e.printStackTrace();
+            }
             return Random.nextInt(350, 550);
         }
 
@@ -197,16 +210,15 @@ public class GrandExchange extends Task {
         return purchaser.purchase();
     }
 
-    private boolean getImplings() {
+    private boolean getImplings() throws IOException {
         Store.setAction("Getting implings.");
         if (purchaser != null && !purchaser.hasItem("Essence impling")) {
             purchaser = null;
         }
         if(purchaser == null) {
+            ItemPair[] items = calculateImplingsQuantity();
             purchaser = new GrandExchangePurchaser(
-                    new ItemPair("Essence impling jar", 3, 3),
-                    new ItemPair("Eclectic impling jar", 3, 3),
-                    new ItemPair("Nature impling jar", 3, 3)
+                   items
             );
         }
         return purchaser.purchase();
@@ -229,6 +241,76 @@ public class GrandExchange extends Task {
 
     private boolean hasImplings() {
         return PlayerHelper.hasAll("Essence impling jar", "Eclectic impling jar", "Nature impling jar");
+    }
+
+    private ItemPair[] calculateImplingsQuantity() throws IOException {
+        ItemPair[] items = new ItemPair[3];
+        RSItemDefinition essenceDef = Definitions.getItem("Essence impling jar", s -> !s.isNoted());
+        RSItemDefinition eclecticDef = Definitions.getItem("Eclectic impling jar", s -> !s.isNoted());
+        RSItemDefinition natureDef = Definitions.getItem("Nature impling jar", s -> !s.isNoted());
+
+        int essencePrice = PriceChecker.getOSBuddyPrice(essenceDef.getId());
+        int eclecticPrice = PriceChecker.getOSBuddyPrice(eclecticDef.getId());
+        int naturePrice = PriceChecker.getOSBuddyPrice(natureDef.getId());
+
+        essencePrice = (int) (essencePrice + (essencePrice * 0.10));
+        eclecticPrice = (int) (eclecticPrice + (eclecticPrice * 0.10));
+        naturePrice = (int) (naturePrice + (naturePrice * 0.10));
+
+        int essenceMultiplier = 3;
+        int eclecticMultiplier = 2;
+        int natureMultiplier = 1;
+
+        Log.fine("Prices: " + essencePrice + " " + eclecticPrice + " " + naturePrice);
+
+
+        int coins = Inventory.getCount(true, "Coins");
+        coins = (coins / 100) * 90;
+
+
+        int[] prices = new int[]{essencePrice, eclecticPrice, naturePrice};
+        Arrays.sort(prices);
+        int maxPrice = prices[prices.length - 1];
+
+        if(maxPrice == essencePrice) {
+            maxPrice = maxPrice * essenceMultiplier;
+        }
+
+        if(maxPrice == eclecticPrice) {
+            maxPrice = maxPrice * eclecticPrice;
+        }
+
+
+        if(maxPrice == naturePrice) {
+            maxPrice = maxPrice * naturePrice;
+        }
+
+        Log.fine("Max Price: " + maxPrice);
+
+        int essenceQuantity = 0;
+        int eclecticQuantity = 0;
+        int natureQuantity = 0;
+
+        Log.fine("Coins: " + coins);
+
+        while (coins > maxPrice) {
+            coins = coins - (essenceMultiplier * essencePrice);
+            essenceQuantity += essenceMultiplier;
+            coins = coins - (eclecticMultiplier * eclecticPrice);
+            eclecticQuantity += eclecticMultiplier;
+            coins = coins - (natureMultiplier * naturePrice);
+            natureQuantity += natureMultiplier;
+        }
+
+        Log.fine("Quantities: " + essenceQuantity + " " + eclecticQuantity + " " + natureQuantity);
+
+        items[0] = new ItemPair("Essence impling jar", essenceQuantity, 1);
+        items[1] = new ItemPair("Eclectic impling jar", eclecticQuantity, 1);
+        items[2] = new ItemPair("Nature impling jar", natureQuantity, 1);
+        items[0].setPrice(essencePrice);
+        items[1].setPrice(eclecticPrice);
+        items[2].setPrice(naturePrice);
+        return items;
     }
 
     private boolean hasLostCitySupplies() {
