@@ -43,6 +43,10 @@ public class LostCity extends Task implements RenderListener {
         return Varps.get(147) == 6;
     }
 
+    public static boolean mayNeedSupplies() {
+        return Varps.get(147) < 5;
+    }
+
     private Position farthestSpot = new Position(2848, 9754, 0);
     private Position zombieSafeSpot = new Position(2848, 9745, 0);
     private Position treeSafeSpot = new Position(2859, 9731, 0);
@@ -111,6 +115,7 @@ public class LostCity extends Task implements RenderListener {
     }
 
     private void finishQuest() {
+        Log.info("Finishing quest.");
         // Teleport out of cave.
         if(Players.getLocal().getPosition().getY() > 9000) {
 
@@ -157,6 +162,7 @@ public class LostCity extends Task implements RenderListener {
             Time.sleep(230, 330);
         }
 
+        Log.fine("Walking to finish.");
         Position finish = new Position(3200, 3169, 0);
         if(!finish.isLoaded() || finish.distance() > 10) {
             MovementHelper.walkRandomized(finish, false);
@@ -242,7 +248,8 @@ public class LostCity extends Task implements RenderListener {
 
             boolean inSafeZone = Players.getLocal().getPosition().equals(zombieSafeSpot);
             if (!inSafeZone) {
-                MovementHelper.setWalkFlag(zombieSafeSpot);
+                Movement.setWalkFlagWithConfirm(zombieSafeSpot);
+                Time.sleep(300, 550);
                 return;
             }
             Npc zombie = Npcs.getNearest(s ->
@@ -252,7 +259,7 @@ public class LostCity extends Task implements RenderListener {
                 Store.setStatus("Waiting for zombie.");
                 return;
             }
-            Spell spell = Skills.getCurrentLevel(Skill.MAGIC) >= 13 ? Spell.Modern.FIRE_STRIKE : Spell.Modern.WIND_STRIKE;
+            Spell spell = getBestSpell();
             Magic.cast(spell, zombie);
             Time.sleep(300, 450);
             return;
@@ -283,7 +290,7 @@ public class LostCity extends Task implements RenderListener {
             return;
         }
 
-        Magic.cast(Spell.Modern.FIRE_STRIKE, spirit);
+        Magic.cast(getBestSpell(), spirit);
         Time.sleep(100, 250);
 
     }
@@ -331,7 +338,7 @@ public class LostCity extends Task implements RenderListener {
 
     private boolean withdrawItems(int varp) {
 
-        if (varp < 2 || Players.getLocal().getPosition().getY() > 9000) {
+        if (varp >= 5 || varp < 2 || Players.getLocal().getPosition().getY() > 9000) {
             return true;
         }
 
@@ -385,6 +392,23 @@ public class LostCity extends Task implements RenderListener {
         }
 
         return true;
+    }
+
+    private Spell getBestSpell() {
+        int magic = Skills.getCurrentLevel(Skill.MAGIC);
+        if(magic < 5 && Inventory.contains("Air rune")) {
+            return Spell.Modern.WIND_STRIKE;
+        }
+        if(magic < 9 && Inventory.contains("Water rune")) {
+            return Spell.Modern.WATER_STRIKE;
+        }
+        if(magic < 13 && Inventory.contains("Earth rune")) {
+            return Spell.Modern.EARTH_STRIKE;
+        }
+        if(magic >= 13 && Inventory.contains("Fire rune")) {
+            return Spell.Modern.EARTH_STRIKE;
+        }
+        return Spell.Modern.WIND_STRIKE;
     }
 
     @Override

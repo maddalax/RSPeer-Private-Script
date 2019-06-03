@@ -2,6 +2,7 @@ package org.maddev.helpers.walking;
 
 import org.maddev.State;
 import org.maddev.Store;
+import org.maddev.web.dax.DaxWeb;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.tab.Magic;
@@ -111,12 +112,36 @@ public class CustomWalker implements ChatMessageListener  {
             return true;
         }
 
-        currentPath = Movement.buildPath(p);
-        return shouldWalk() || PathExecutor.getPathExecutorSupplier().get().execute(currentPath);
+        boolean usedDaxWeb = false;
+        if(Players.getLocal().getPosition().getFloorLevel() == p.getFloorLevel()) {
+            Log.fine("Walking to same floor level, attempting dax web first.");
+            Path bPath = DaxWeb.build(p);
+            if(bPath != null) {
+                usedDaxWeb = true;
+                currentPath = bPath;
+            }
+        }
+        if(!usedDaxWeb) {
+            Log.fine("Did not use Dax Path.");
+            currentPath = Movement.buildPath(p);
+        }
+        boolean shouldWalk = shouldWalk();
+        Log.fine("Should walk: " + shouldWalk);
+        if(currentPath == null) {
+            Log.fine("Failed to generate path to " + p);
+            return false;
+        }
+        return !shouldWalk || PathExecutor.getPathExecutorSupplier().get().execute(currentPath);
     }
 
     private boolean shouldWalk() {
-       return Movement.isDestinationSet() && Movement.getDestinationDistance() > 3;
+        if(!Players.getLocal().isMoving()) {
+            return true;
+        }
+        if(Movement.isDestinationSet() && !Movement.isWalkable(Movement.getDestination())) {
+            return true;
+        }
+       return !Movement.isDestinationSet() || Movement.getDestinationDistance() < 3;
     }
 
     public boolean isWalkingCustomPath(CustomPath path) {

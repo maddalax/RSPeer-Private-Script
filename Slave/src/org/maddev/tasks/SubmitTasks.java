@@ -2,7 +2,9 @@ package org.maddev.tasks;
 
 import org.maddev.tasks.hunting.Hunting;
 import org.maddev.tasks.hunting.MuseumQuiz;
+import org.rspeer.runetek.adapter.scene.Player;
 import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskScript;
 
@@ -47,6 +49,10 @@ public class SubmitTasks extends Task {
         submitOnce(new SetRun());
         submitOnce(new DepositStartingItems());
 
+        if(Players.getLocal().getY() > 9000) {
+            submitOnce(lostCity);
+        }
+
         if(Hunting.MIDDLE.distance() < 300) {
             submitOnce(hunting);
         }
@@ -65,9 +71,9 @@ public class SubmitTasks extends Task {
             submitOnce(quiz);
         }
 
-        submitOnce(crafting);
-        submitOnce(woodcutting);
         submitOnce(hunting);
+        submitOnce(woodcutting);
+        submitOnce(crafting);
         submitOnce(lostCity);
 
         submittedTasks = true;

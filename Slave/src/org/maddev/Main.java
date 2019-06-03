@@ -3,11 +3,8 @@ package org.maddev;
 import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.walking.CustomPath;
 import org.maddev.helpers.walking.MovementHelper;
-import org.maddev.helpers.walking.paths.HuntingHillGiants;
-import org.maddev.helpers.walking.paths.LumbridgeHut;
 import org.maddev.tasks.SubmitTasks;
-import org.rspeer.runetek.api.Game;
-import org.rspeer.runetek.api.Worlds;
+import org.maddev.web.dax.DaxWeb;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.event.listeners.BankLoadListener;
 import org.rspeer.runetek.event.listeners.ItemTableListener;
@@ -29,11 +26,12 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
     @Override
     public void onStart() {
         GameCanvas.setInputEnabled(true);
+        setAccount(new GameAccount("Chubbyownzaa+10@gmail.com", "maddev11"));
+
+        DaxWeb.initialize("sub_DPjcfqN4YkIxm8", "PUBLIC-KEY");
+        //submit(new WalkTest());
 
         submit(new SubmitTasks(this));
-
-        MovementHelper.addCustomPath(new LumbridgeHut());
-        MovementHelper.addCustomPath(new HuntingHillGiants());
     }
 
     @Override

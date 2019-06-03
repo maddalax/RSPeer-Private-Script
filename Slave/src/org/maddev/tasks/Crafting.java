@@ -6,6 +6,8 @@ import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.walking.MovementHelper;
+import org.maddev.helpers.walking.MovementUtil;
 import org.rspeer.runetek.adapter.component.InterfaceComponent;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.SceneObject;
@@ -116,6 +118,12 @@ public class Crafting extends Task implements AnimationListener {
 
     private void spinFlax() {
         Log.fine("Spinning flax.");
+
+        if(Players.getLocal().getPosition().getFloorLevel() == 0) {
+            MovementUtil.applyLumbridgeFix();
+            return;
+        }
+
         Predicate<Item> flax = i -> i.getName().equals("Flax") && !i.isNoted();
         if (!Inventory.contains(flax) && !isAnimationDone(4000)) {
             //Ran out of flax, but we are still animating, just sleep a little bit so it doesnt look suspicious

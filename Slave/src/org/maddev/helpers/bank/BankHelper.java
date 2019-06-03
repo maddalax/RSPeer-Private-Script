@@ -3,11 +3,13 @@ package org.maddev.helpers.bank;
 import org.maddev.Store;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.walking.MovementHelper;
+import org.maddev.helpers.walking.MovementUtil;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
+import org.rspeer.runetek.api.scene.Players;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +29,10 @@ public class BankHelper {
     public static boolean open(BankLocation location, boolean useHomeTeleport) {
         if(location == null) {
             return false;
+        }
+        if(location == BankLocation.LUMBRIDGE_CASTLE && Players.getLocal().getPosition().getFloorLevel() == 0) {
+            Time.sleep(350, 650);
+            return MovementUtil.applyLumbridgeFix();
         }
         if(location.getPosition().distance() > 5) {
             MovementHelper.walkRandomized(location.getPosition(), false, useHomeTeleport);

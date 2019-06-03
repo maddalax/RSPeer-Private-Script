@@ -1,37 +1,21 @@
 package org.maddev.helpers.walking;
 
-import org.rspeer.runetek.api.movement.Movement;
+import org.maddev.helpers.interact.InteractHelper;
+import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.movement.position.Position;
-import org.rspeer.runetek.api.scene.Scene;
+import org.rspeer.runetek.api.scene.Players;
+import org.rspeer.runetek.api.scene.SceneObjects;
+import org.rspeer.ui.Log;
 
 public class MovementUtil {
 
-    public static Position getBest(Position[] positions, boolean acceptBlockedEnd) {
-        int nearIndex = -1;
-        int lastDistance = Integer.MAX_VALUE;
-        for (int i = 0; i < positions.length; i++) {
-            Position position = positions[i];
-            double dist = position.distance();
-            if (dist < lastDistance) {
-                lastDistance = (int) dist;
-                nearIndex = i;
-            }
+    public static boolean applyLumbridgeFix() {
+        Log.fine("Applying Lumbridge fix.");
+        SceneObject stairs = SceneObjects.getFirstAt(new Position(3204, 3229));
+        if(stairs == null || stairs.distance() > 10) {
+            return MovementHelper.walkRandomized(new Position(3207, 3228, 0), false, true);
         }
-
-        Position furthest = null;
-        if (nearIndex != positions.length - 1) {
-            furthest = positions[nearIndex + 1];
-            for (int i = nearIndex; i < positions.length; i++) {
-                Position position = positions[i];
-                if (Scene.isLoaded(position) && Movement.isWalkable(position, acceptBlockedEnd)) {
-                    if (position.distance() <= 5) {
-                        continue;
-                    }
-                    furthest = position;
-                }
-            }
-        }
-
-        return furthest;
+        InteractHelper.interact(stairs, "Climb-up");
+        return Players.getLocal().getPosition().getFloorLevel() != 0;
     }
 }

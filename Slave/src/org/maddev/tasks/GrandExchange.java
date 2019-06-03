@@ -44,7 +44,7 @@ public class GrandExchange extends Task implements TaskChangeListener {
                 return true;
             }
         }
-        if (!LostCity.isComplete()) {
+        if (!LostCity.mayNeedSupplies()) {
             if(!hasLostCitySupplies()) {
                 Log.fine("Getting Lost City Supplies.");
                 return true;
