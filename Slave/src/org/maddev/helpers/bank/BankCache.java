@@ -33,7 +33,7 @@ public class BankCache {
 
     private static void initialize() {
         while (!isCached()) {
-            Store.setStatus("Caching bank.");
+            Store.setAction("Caching bank.");
             if(Store.getState() == State.SCRIPT_STOPPED) {
                 break;
             }
@@ -47,14 +47,13 @@ public class BankCache {
             }
             BankHelper.open(BankHelper.nearest(), true);
         }
-        Store.setStatus("Succesfully cached bank.");
+        Store.setAction("Succesfully cached bank.");
     }
 
     public static void cache() {
         if (Bank.isOpen()) {
             Map<String, Integer> bank = new HashMap<>();
             for (Item item : Bank.getItems()) {
-                Log.fine(item.getName() + " " + item.getStackSize());
                 bank.put(item.getName(), item.getStackSize() + bank.getOrDefault(item.getName(), 0));
             }
             cache = bank;

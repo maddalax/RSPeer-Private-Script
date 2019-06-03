@@ -1,12 +1,12 @@
 package org.maddev.tasks;
 
+import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
 
 public class DepositStartingItems extends Task {
 
@@ -17,8 +17,9 @@ public class DepositStartingItems extends Task {
 
     @Override
     public int execute() {
-        Log.fine("Depositing Starting Items.");
+        Store.setTask("Depositing Starting Items.");
         if(!Bank.isOpen()) {
+            Store.setAction("Opening bank.");
             BankHelper.open(BankLocation.GRAND_EXCHANGE);
             return Random.nextInt(550, 1150);
         }

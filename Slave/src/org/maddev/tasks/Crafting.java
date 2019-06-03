@@ -6,7 +6,6 @@ import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
-import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.walking.MovementUtil;
 import org.rspeer.runetek.adapter.component.InterfaceComponent;
 import org.rspeer.runetek.adapter.component.Item;
@@ -62,7 +61,7 @@ public class Crafting extends Task implements AnimationListener {
 
     @Override
     public int execute() {
-        Store.setStatus("Crafting.");
+        Store.setAction("Crafting.");
         int level = getLevel();
         if (level < 10) {
             craftLeather();
@@ -91,7 +90,7 @@ public class Crafting extends Task implements AnimationListener {
             return;
         }
         Bank.close();
-        Store.setStatus("Crafting leather.");
+        Store.setAction("Crafting leather.");
         InterfaceComponent component = getInterface();
         if (component != null) {
             component.click();
@@ -117,7 +116,7 @@ public class Crafting extends Task implements AnimationListener {
     }
 
     private void spinFlax() {
-        Log.fine("Spinning flax.");
+        Store.setTask("Spinning flax.");
 
         if(Players.getLocal().getPosition().getFloorLevel() == 0) {
             MovementUtil.applyLumbridgeFix();
@@ -127,7 +126,7 @@ public class Crafting extends Task implements AnimationListener {
         Predicate<Item> flax = i -> i.getName().equals("Flax") && !i.isNoted();
         if (!Inventory.contains(flax) && !isAnimationDone(4000)) {
             //Ran out of flax, but we are still animating, just sleep a little bit so it doesnt look suspicious
-            Store.setStatus("Idling for a sec.");
+            Store.setAction("Idling for a sec.");
             Time.sleep(500, 15000);
         }
         if(!Inventory.contains(flax)) {
@@ -139,10 +138,10 @@ public class Crafting extends Task implements AnimationListener {
             }
         }
         if(!Inventory.contains(flax)) {
-            Store.setStatus("No flax.");
+            Store.setAction("No flax.");
             return;
         }
-        Store.setStatus("Spinning flax.");
+        Store.setAction("Spinning flax.");
         switch (Players.getLocal().getFloorLevel()) {
             case 2: {
                 InteractHelper.interact(SceneObjects.getFirstAt(new Position(3205, 3208, 2)));
@@ -151,7 +150,7 @@ public class Crafting extends Task implements AnimationListener {
             case 1: {
 
                 if (!isAnimationDone(Random.nextInt(4000, 4500))) {
-                    Store.setStatus("Spinning flax - Animating.");
+                    Store.setAction("Spinning flax - Animating.");
                     return;
                 }
 
@@ -166,18 +165,18 @@ public class Crafting extends Task implements AnimationListener {
                 Position insideRoom = new Position(3208, 3214, 1);
                 SceneObject door = SceneObjects.getFirstAt(new Position(3207, 3214, 1));
                 if (door != null && insideRoom.distance() > door.distance()) {
-                    Store.setStatus("Opening door to wheel.");
+                    Store.setAction("Opening door to wheel.");
                     InteractHelper.interact(door);
                     return;
                 }
 
                 SceneObject wheel = SceneObjects.getFirstAt(new Position(3209, 3212, 1));
                 if (wheel == null) {
-                    Store.setStatus("Spinning wheel is null?");
+                    Store.setAction("Spinning wheel is null?");
                     return;
                 }
 
-                Store.setStatus("Interacting with wheel.");
+                Store.setAction("Interacting with wheel.");
                 InteractHelper.interact(wheel, "Spin");
                 return;
             }

@@ -8,6 +8,7 @@ import org.maddev.helpers.equipment.EquipmentHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
 import org.maddev.helpers.walking.MovementHelper;
+import org.maddev.helpers.zanris.ZanarisHelper;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.Pickable;
@@ -65,11 +66,9 @@ public class LostCity extends Task implements RenderListener {
 
     private void doExecute() {
 
-        Store.setStatus("Lost City");
+        Store.setAction("Lost City");
 
         int varp = Varps.get(147);
-
-        Log.fine("Varp: " + varp);
 
         if (!withdrawItems(varp)) {
             return;
@@ -136,7 +135,7 @@ public class LostCity extends Task implements RenderListener {
                 }
                 SceneObject tree = SceneObjects.getNearest("Dramen tree");
                 if(tree == null) {
-                    Store.setStatus("Failed to find dramen tree after killing spirit.");
+                    Store.setAction("Failed to find dramen tree after killing spirit.");
                     return;
                 }
                 InteractHelper.interact(tree, "Chop down");
@@ -162,25 +161,13 @@ public class LostCity extends Task implements RenderListener {
             Time.sleep(230, 330);
         }
 
-        Log.fine("Walking to finish.");
-        Position finish = new Position(3200, 3169, 0);
-        if(!finish.isLoaded() || finish.distance() > 10) {
-            MovementHelper.walkRandomized(finish, false);
-            Time.sleep(230, 450);
-            return;
-        }
-        SceneObject door = SceneObjects.getNearest("Door");
-        if(door == null) {
-            Store.setStatus("Failed to find door to Zanaris.");
-            return;
-        }
-        InteractHelper.interact(door, "Open");
-        Time.sleep(350, 850);
+        Store.setAction("Walking to finish.");
+        ZanarisHelper.goToZanaris(false);
     }
 
     private void goToEntrana() {
         if (!Area.rectangular(2790, 3398, 2880, 3323).setIgnoreFloorLevel(true).contains(Players.getLocal())) {
-            Store.setStatus("Going to Entrana.");
+            Store.setAction("Going to Entrana.");
             Position monkTile = new Position(3042, 3241, 0);
             if (!monkTile.isLoaded() || monkTile.distance() > 10) {
                 MovementHelper.walkRandomized(monkTile, false);
@@ -189,7 +176,7 @@ public class LostCity extends Task implements RenderListener {
             }
             Npc monk = Npcs.getNearest("Monk of Entrana");
             if (monk == null) {
-                Store.setStatus("Failed to find Monk to Entrana.");
+                Store.setAction("Failed to find Monk to Entrana.");
                 return;
             }
             InteractHelper.interact(monk, "Take-boat");
@@ -200,7 +187,7 @@ public class LostCity extends Task implements RenderListener {
         if(Players.getLocal().getPosition().getFloorLevel() == 1) {
             SceneObject plank = SceneObjects.getFirstAt(new Position(2834, 3333, 1));
             if(plank != null) {
-                Log.fine("Crossing plank.");
+                Store.setAction("Crossing plank.");
                 plank.click();
                 Time.sleep(850, 1120);
                 return;
@@ -223,7 +210,7 @@ public class LostCity extends Task implements RenderListener {
     }
 
     private void handleCave() {
-        Store.setStatus("Handling cave.");
+        Store.setAction("Handling cave.");
         // Get axe from zombie.
         if (!Inventory.contains(s -> s.getName().contains("axe"))) {
 
@@ -234,13 +221,13 @@ public class LostCity extends Task implements RenderListener {
                 if(Inventory.isFull()) {
                     Item lobster = Inventory.getFirst("Lobster");
                     if(lobster == null) {
-                        Store.setStatus("Inventory is full, but no lobsters?");
+                        Store.setAction("Inventory is full, but no lobsters?");
                         return;
                     }
                     lobster.interact("Drop");
                     Time.sleep(350, 550);
                 }
-                Log.fine("Trying to pickup axe.");
+                Store.setAction("Trying to pickup axe.");
                 axe.interact("Take");
                 Time.sleep(850, 1950);
                 return;
@@ -256,7 +243,7 @@ public class LostCity extends Task implements RenderListener {
                     s.getName().equals("Zombie") &&
                             (s.getTarget() == null || s.getTarget().equals(Players.getLocal())) && s.distance() <= farthestSpot.distance());
             if (zombie == null) {
-                Store.setStatus("Waiting for zombie.");
+                Store.setAction("Waiting for zombie.");
                 return;
             }
             Spell spell = getBestSpell();
@@ -274,7 +261,7 @@ public class LostCity extends Task implements RenderListener {
             }
             SceneObject tree = SceneObjects.getNearest("Dramen tree");
             if(tree == null) {
-                Store.setStatus("Failed to find dramen tree and spirit.");
+                Store.setAction("Failed to find dramen tree and spirit.");
                 return;
             }
             if(!tree.interact("Chop down")) {
@@ -296,13 +283,13 @@ public class LostCity extends Task implements RenderListener {
     }
 
     private void startQuest() {
-        Store.setStatus("Starting Lost City.");
+        Store.setAction("Starting Lost City.");
         Position startTile = new Position(3148, 3205, 0);
         if (!startTile.isLoaded() || startTile.distance() > 10) {
             MovementHelper.walkRandomized(startTile, false);
             return;
         }
-        DialogueHelper.process("Warrior", "What are you camped", "Who's Zanaris", "If it's hidden", "Looks like you don't");
+        DialogueHelper.process("Warrior", "What are you camped", "Who's ZanarisHelper", "If it's hidden", "Looks like you don't");
     }
 
     private void interactTree() {
@@ -312,17 +299,17 @@ public class LostCity extends Task implements RenderListener {
             return;
         }
         Npc shamus = Npcs.getNearest("Shamus");
-        Log.fine("Looking for Shamus.");
+        Store.setAction("Looking for Shamus.");
         if (shamus == null) {
             Position treePosition = new Position(3139, 3211, 0);
             SceneObject tree = SceneObjects.getNearest(s -> s.getName().equals("Tree") && s.containsAction("Chop") && treePosition.distance(s.getPosition()) < 10);
             if (tree == null) {
-                Log.fine("Shamus is null and so is tree, walking to it.");
+                Store.setAction("Walking to tree.");
                 MovementHelper.walkRandomized(new Position(3139, 3211, 0), false);
                 Time.sleep(230, 545);
                 return;
             }
-            Log.fine("Shamus is null, tree has been found.");
+            Store.setAction("Found tree. Chopping.");
             if(tree.distance() > 5) {
                 MovementHelper
                         .walkRandomized(tree.getPosition(), false);

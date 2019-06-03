@@ -10,7 +10,6 @@ import org.rspeer.ui.Log;
 public class MovementUtil {
 
     public static boolean applyLumbridgeFix() {
-        Log.fine("Applying Lumbridge fix.");
         SceneObject stairs = SceneObjects.getFirstAt(new Position(3204, 3229));
         if(stairs == null || stairs.distance() > 10) {
             return MovementHelper.walkRandomized(new Position(3207, 3228, 0), false, true);

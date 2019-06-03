@@ -1,12 +1,14 @@
 package org.maddev.tasks;
 
+import org.maddev.Store;
 import org.maddev.tasks.hunting.Hunting;
 import org.maddev.tasks.hunting.MuseumQuiz;
-import org.rspeer.runetek.adapter.scene.Player;
+import org.maddev.tasks.zanaris.GoToZanaris;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskScript;
+import org.rspeer.ui.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,7 @@ public class SubmitTasks extends Task {
 
     @Override
     public int execute() {
+        Store.setTask("Submitting Tasks");
         if(submittedTasks || !Game.isLoggedIn()) {
             return 200;
         }
@@ -75,6 +78,7 @@ public class SubmitTasks extends Task {
         submitOnce(woodcutting);
         submitOnce(crafting);
         submitOnce(lostCity);
+        submitOnce(new GoToZanaris());
 
         submittedTasks = true;
         instance.remove(this);
@@ -86,6 +90,7 @@ public class SubmitTasks extends Task {
         if(submitted.contains(task)) {
             return;
         }
+        Log.fine("Submitting: " + task.getClass().getSimpleName());
         instance.submit(task);
     }
 

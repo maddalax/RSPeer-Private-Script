@@ -62,13 +62,13 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     }
 
     private void doExecute() {
-        Log.fine("Solving quiz.");
+        Store.setTask("Solving quiz.");
         if(isDone() && inBasement()) {
-            Store.setStatus("Exiting basement.");
+            Store.setAction("Exiting basement.");
             exitBasement();
             return;
         }
-        Store.setStatus("Solving quiz.");
+        Store.setAction("Solving quiz.");
         questionScreen = Interfaces.getComponent(533, 28);
         me = Players.getLocal();
         animal = QuizDisplay.getCurrent();
@@ -248,7 +248,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
 
     private void exitBasement() {
         SceneObject stairs = SceneObjects.getFirstAt(new Position(1758, 4959, 0));
-        Log.fine("Exiting basement.");
+        Store.setAction("Exiting basement.");
         if (stairs == null) {
             MovementHelper.walkRandomized(ORLANDO_POSITION, false);
             Time.sleep(850, 1500);
@@ -261,7 +261,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
     private void goDownStairs() {
         SceneObject stairs = SceneObjects.getFirstAt(new Position(3255, 3451));
         if (stairs == null) {
-            Store.setStatus("Unable to find museum stairs?");
+            Store.setAction("Unable to find museum stairs?");
             return;
         }
         InteractHelper.interact(stairs, "Walk-down");

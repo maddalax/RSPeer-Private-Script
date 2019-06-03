@@ -58,7 +58,7 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
-        Log.fine("Walking to " + p.toString() + " " + p.distance());
+        Log.fine("Walking to " + p.toString() + " Distance: " + p.distance());
         if(useHomeTeleport && timeTillTeleport < System.currentTimeMillis()) {
             if(!useHomeTeleport(p)) {
                 return false;
@@ -69,49 +69,6 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean walk(Position p, boolean acceptEndBlocked) {
-
-        if(isWalkingCustomPath(currentCustomPath)) {
-            if(!currentCustomPath.didWalkToStart() && currentCustomPath.startPosition() != null) {
-                if(Players.getLocal().getPosition().equals(currentCustomPath.startPosition())) {
-                    currentCustomPath.setWalkedtoStart(true);
-                } else {
-                    MovementHelper.setWalkFlag(currentCustomPath.startPosition());
-                    Log.fine("Walking to start position.");
-                }
-                return false;
-            }
-            return shouldWalk() || currentCustomPath.getPath().walk(acceptEndBlocked);
-        }
-
-        CustomPath temp = null;
-        for (CustomPath customPath : customPaths) {
-            if(!customPath.validate(p)) {
-                continue;
-            }
-            temp = customPath;
-            temp.setPath(PredefinedPath.build(customPath.getPositions()));
-            temp.getPath().walk(acceptEndBlocked);
-            break;
-        }
-
-        /*
-          Once finished with a custom path, we must clear the HPA cache for our position
-          so it doesn't try to pickup where we previously were before the custom path.
-         */
-        if(!isWalkingCustomPath(temp)) {
-            if(currentCustomPath != null) {
-                currentCustomPath = null;
-                if(currentPath != null && currentPath instanceof HpaPath) {
-                    ((HpaPath) currentPath).decache();
-                }
-            }
-        }
-
-        else if(isWalkingCustomPath(temp)) {
-            currentCustomPath = temp;
-            return true;
-        }
-
         boolean usedDaxWeb = false;
         if(Players.getLocal().getPosition().getFloorLevel() == p.getFloorLevel()) {
             Log.fine("Walking to same floor level, attempting dax web first.");
@@ -128,7 +85,7 @@ public class CustomWalker implements ChatMessageListener  {
         boolean shouldWalk = shouldWalk();
         Log.fine("Should walk: " + shouldWalk);
         if(currentPath == null) {
-            Log.fine("Failed to generate path to " + p);
+            Log.severe("Failed to generate path to " + p);
             return false;
         }
         return !shouldWalk || PathExecutor.getPathExecutorSupplier().get().execute(currentPath);
@@ -141,7 +98,7 @@ public class CustomWalker implements ChatMessageListener  {
         if(Movement.isDestinationSet() && !Movement.isWalkable(Movement.getDestination())) {
             return true;
         }
-       return !Movement.isDestinationSet() || Movement.getDestinationDistance() < 3;
+       return !Movement.isDestinationSet() || Movement.getDestinationDistance() < 6;
     }
 
     public boolean isWalkingCustomPath(CustomPath path) {
@@ -156,7 +113,7 @@ public class CustomWalker implements ChatMessageListener  {
         if(Players.getLocal().isAnimating()) {
             return false;
         }
-        if(dest.distance() < 50) {
+        if(dest.distance() < 150) {
             return true;
         }
         if(dest.getFloorLevel() == 0 && LUMBRIDGE_TILE.distance() > dest.distance()) {
@@ -172,18 +129,27 @@ public class CustomWalker implements ChatMessageListener  {
 
     @Override
     public void notify(ChatMessageEvent e) {
-        if(Store.getState() == State.SCRIPT_STOPPED) {
-            Game.getEventDispatcher().deregister(this);
-        }
-        if(e.getType() != ChatMessageType.GAME && e.getType() != ChatMessageType.SERVER) {
-            return;
-        }
-        Log.fine(e.getMessage());
-        if(e.getMessage().contains("You need to wait another ")) {
-            int minutes = Integer.parseInt(e.getMessage().replace("You need to wait another", "")
-                    .replace("minutes to cast this spell.", "").trim());
-            timeTillTeleport = System.currentTimeMillis() + (minutes * 60000);
-            Log.fine("Can't teleport for at-least " + minutes + " minutes.");
+        try {
+            if (Store.getState() == State.SCRIPT_STOPPED) {
+                Game.getEventDispatcher().deregister(this);
+            }
+            if (e.getType() != ChatMessageType.GAME && e.getType() != ChatMessageType.SERVER) {
+                return;
+            }
+            Log.fine(e.getMessage());
+            if (e.getMessage().contains("You need to wait another ")) {
+                if(e.getMessage().contains("another minute")) {
+                    timeTillTeleport = System.currentTimeMillis() + (60000);
+                    Log.fine("Can't teleport for at-least " + 1 + " minute.");
+                    return;
+                }
+                int minutes = Integer.parseInt(e.getMessage().replace("You need to wait another", "")
+                        .replace("minutes to cast this spell.", "").trim());
+                timeTillTeleport = System.currentTimeMillis() + (minutes * 60000);
+                Log.fine("Can't teleport for at-least " + minutes + " minutes.");
+            }
+        } catch (Exception ex) {
+            Log.severe(ex.getMessage());
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.maddev.tasks;
 
+import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.equipment.EquipmentHelper;
 import org.maddev.helpers.player.PlayerHelper;
@@ -9,7 +10,6 @@ import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Equipment;
 import org.rspeer.runetek.api.component.tab.EquipmentSlot;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
 
 public class EquipGlory extends Task {
 
@@ -27,7 +27,7 @@ public class EquipGlory extends Task {
 
     @Override
     public int execute() {
-        Log.fine("Equipping amulet glory.");
+        Store.setTask("Equipping amulet glory.");
         Item exists = EquipmentHelper.getChargedGlory();
         if(exists == null) {
             for (String glory : EquipmentHelper.getChargedGlories()) {

@@ -3,6 +3,7 @@ package org.maddev.tasks;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.movement.Movement;
+import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.script.task.Task;
 
 public class SetRun extends Task {
@@ -11,6 +12,9 @@ public class SetRun extends Task {
 
     @Override
     public boolean validate() {
+        if(Players.getLocal().isHealthBarVisible() && Players.getLocal().isMoving() && !Movement.isRunEnabled()) {
+            return true;
+        }
         return Movement.getRunEnergy() > threshold && !Movement.isRunEnabled();
     }
 

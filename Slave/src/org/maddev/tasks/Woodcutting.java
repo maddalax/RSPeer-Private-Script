@@ -3,7 +3,6 @@ package org.maddev.tasks;
 import org.maddev.Config;
 import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
-import org.maddev.helpers.equipment.EquipmentHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
 import org.maddev.helpers.walking.MovementHelper;
@@ -34,7 +33,7 @@ public class Woodcutting extends Task {
 
     @Override
     public int execute() {
-        Log.fine("Woodcutting.");
+        Store.setTask("Woodcutting.");
         int loop = Random.nextInt(350, 850);
         if(!BankHelper.withdrawOnly(BankLocation.DRAYNOR, true,
                 new ItemPair("Iron axe", 1),
@@ -49,7 +48,7 @@ public class Woodcutting extends Task {
         }
 
         if(TREES.distance() > 50) {
-            Store.setStatus("Walking to trees.");
+            Store.setAction("Walking to trees.");
 
             MovementHelper.walkRandomized(TREES, false, TREES.distance() > 300);
             return loop;
@@ -64,11 +63,11 @@ public class Woodcutting extends Task {
             return loop;
         }
 
-        Store.setStatus("Woodcutting.");
+        Store.setAction("Woodcutting.");
         SceneObject tree = SceneObjects.getNearest(TREE);
 
         if(tree == null) {
-            Store.setStatus("Waiting for tree.");
+            Store.setAction("Waiting for tree.");
             return loop;
         }
 

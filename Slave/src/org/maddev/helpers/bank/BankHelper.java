@@ -92,7 +92,7 @@ public class BankHelper {
         if(Inventory.contains(predicate)) {
             return true;
         }
-        Store.setStatus("Withdrawing item via predicate.");
+        Store.setAction("Withdrawing item via predicate.");
         if(!Bank.isOpen()) {
             open(location, useHomeTeleport);
             return false;
@@ -120,7 +120,7 @@ public class BankHelper {
         if(Inventory.contains(item) && Bank.getCount(item) < Inventory.getCount(item)) {
             return true;
         }
-        Store.setStatus("Withdrawing " + item + ".");
+        Store.setAction("Withdrawing " + item + ".");
         if(!Bank.isOpen()) {
             open(location, useHomeTeleport);
             return false;

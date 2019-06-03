@@ -35,7 +35,6 @@ public class EquipmentHelper {
         List<String> glories = Arrays.asList(EquipmentHelper.getChargedGlories());
         Item[] equipmentItems = Equipment.getItems(i -> glories.contains(i.getName()));
         if(equipmentItems.length > 0) {
-            Log.fine("Is from equipment");
             return equipmentItems[0];
         }
         return Inventory.getFirst(i -> glories.contains(i.getName()));
