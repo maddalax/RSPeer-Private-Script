@@ -86,7 +86,7 @@ public class GrandExchangePurchaser {
 
             if (GrandExchangeSetup.getPricePerItem() != pair.getPrice()) {
                 Store.setAction("Setting price to " + pair.getPrice() + ".");
-                GrandExchangeSetup.setPrice(pair.getPriceMinimum());
+                GrandExchangeSetup.setPrice(pair.getPrice());
                 Time.sleep(100, 200);
                 return false;
             }

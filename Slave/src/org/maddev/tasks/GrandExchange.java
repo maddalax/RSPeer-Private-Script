@@ -272,17 +272,18 @@ public class GrandExchange extends Task {
         Arrays.sort(prices);
         int maxPrice = prices[prices.length - 1];
 
+        Log.fine("Max price before: " + maxPrice);
+
         if(maxPrice == essencePrice) {
             maxPrice = maxPrice * essenceMultiplier;
         }
 
-        if(maxPrice == eclecticPrice) {
-            maxPrice = maxPrice * eclecticPrice;
+        else if(maxPrice == eclecticPrice) {
+            maxPrice = maxPrice * eclecticMultiplier;
         }
 
-
-        if(maxPrice == naturePrice) {
-            maxPrice = maxPrice * naturePrice;
+        else if(maxPrice == naturePrice) {
+            maxPrice = maxPrice * natureMultiplier;
         }
 
         Log.fine("Max Price: " + maxPrice);

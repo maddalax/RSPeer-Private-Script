@@ -18,7 +18,6 @@ import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
 
 import java.util.function.Predicate;
 
@@ -63,7 +62,7 @@ public class Woodcutting extends Task {
             return loop;
         }
 
-        Store.setAction("Woodcutting.");
+        Store.setAction("Looking for tree.");
         SceneObject tree = SceneObjects.getNearest(TREE);
 
         if(tree == null) {
@@ -71,6 +70,8 @@ public class Woodcutting extends Task {
             return loop;
         }
 
+
+        Store.setAction("Cutting down tree.");
         InteractHelper.interact(tree, "Chop down");
         Time.sleepUntil(() -> Players.getLocal().isAnimating(), 3500);
         return loop;
