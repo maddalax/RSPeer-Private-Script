@@ -1,6 +1,6 @@
 package org.maddev;
 
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 public class Store {
 
@@ -9,9 +9,6 @@ public class Store {
     private static String action;
 
     public static void setAction(String action) {
-        if(action != null && !action.equals(Store.action)) {
-            Log.fine("Setting action to: " + action + ".");
-        }
         Store.action = action;
     }
 
@@ -20,9 +17,6 @@ public class Store {
     }
 
     public static void setTask(String task) {
-        if(task != null && !task.equals(Store.task)) {
-            Log.fine("Setting task to: " + task + ".");
-        }
         Store.task = task;
     }
 

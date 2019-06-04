@@ -28,14 +28,13 @@ public class ZanarisHelper {
     }
 
     public static boolean openZanarisBank() {
-        int[] choices = new int[]{4458, 4456, 4457, 4459, 4460};
-        SceneObject booth = SceneObjects.getFirstAt(new Position(2380,  Random.nextElement(choices), 0));
-        if(booth != null && booth.distance() < 10) {
+        SceneObject booth = SceneObjects.getNearest("Bank chest");
+        if(booth != null) {
             InteractHelper.interact(booth, "Use");
             return Bank.isOpen();
         }
         if(!BANK.isLoaded()) {
-            Movement.setWalkFlagWithConfirm(HALF_WAY_BANK.isLoaded() ? HALF_WAY_BANK : PURO_PURO_PEN);
+            MovementHelper.setWalkFlag(PURO_PURO_PEN);
             Time.sleep(450, 850);
             return false;
         }

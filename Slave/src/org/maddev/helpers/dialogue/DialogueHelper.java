@@ -1,10 +1,12 @@
 package org.maddev.helpers.dialogue;
 
+import org.maddev.Store;
 import org.maddev.helpers.interact.InteractHelper;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Dialog;
 import org.rspeer.runetek.api.scene.Npcs;
+import org.maddev.helpers.log.Logger;
 
 public class DialogueHelper {
 
@@ -38,6 +40,8 @@ public class DialogueHelper {
             Time.sleep(100, 500);
             return;
         }
+        Store.setAction("Processing Dialogue.");
+        Logger.fine("Looking for Dialogue: " + String.join(" , ", options));
         Dialog.process(options);
         Time.sleep(350, 650);
     }

@@ -8,7 +8,7 @@ import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskScript;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +90,6 @@ public class SubmitTasks extends Task {
         if(submitted.contains(task)) {
             return;
         }
-        Log.fine("Submitting: " + task.getClass().getSimpleName());
         instance.submit(task);
     }
 

@@ -2,15 +2,20 @@ package org.maddev.helpers.bank;
 
 import org.maddev.Store;
 import org.maddev.helpers.grand_exchange.ItemPair;
+import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.walking.MovementUtil;
 import org.maddev.helpers.zanris.ZanarisHelper;
+import org.rspeer.runetek.adapter.Interactable;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
+import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.Players;
+import org.rspeer.runetek.api.scene.SceneObjects;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,12 +43,29 @@ public class BankHelper {
             Time.sleep(350, 650);
             return MovementUtil.applyLumbridgeFix();
         }
-        if(location.getPosition().distance() > 5) {
-            MovementHelper.walkRandomized(location.getPosition(), false, useHomeTeleport);
-            Time.sleep(350, 650);
+        Interactable bank = null;
+        switch (location.getType()) {
+            case NPC: {
+                bank = Npcs.getNearest(location.getName());
+                break;
+            }
+            case DEPOSIT_BOX:
+            case BANK_CHEST:
+            case BANK_BOOTH: {
+                bank = SceneObjects.getNearest(i -> i.containsAction(location.getAction()) && i.getName().equals(location.getName()));
+            }
+        }
+        if(bank == null) {
+            if(location.getPosition().distance() > 10) {
+                MovementHelper.walkRandomized(location.getPosition(), false, useHomeTeleport);
+                Time.sleep(350, 650);
+                return false;
+            }
+            Store.setAction("Failed to find bank.");
+            Logger.severe("Failed to find bank.");
             return false;
         }
-        Bank.open(location);
+        InteractHelper.interact(bank, location.getAction());
         Time.sleep(350, 650);
         return Bank.isOpen();
     }
@@ -64,6 +86,18 @@ public class BankHelper {
 
     public static boolean withdrawOnly(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
         List<String> names = Arrays.stream(pair).map(ItemPair::getName).collect(Collectors.toList());
+        int size = 0;
+        for (ItemPair p : pair) {
+            size += p.getQuantity();
+        }
+        int count = 0;
+        for (Item item : Inventory.getItems()) {
+            boolean has = names.contains(item.getName());
+            if(has) count++;
+        }
+        if(count == size && 28 - Inventory.getFreeSlots() == count) {
+            return true;
+        }
         if(Bank.isOpen()) {
             if(!Bank.depositAllExcept(s -> names.contains(s.getName()) && !s.isNoted())) {
                 return false;
@@ -142,7 +176,8 @@ public class BankHelper {
     }
 
     public static boolean depositAllExcept(BankLocation location, Predicate<Item> predicate) {
-        if(Inventory.containsOnly(predicate)) {
+        Store.setAction("Depositing items.");
+        if(!Inventory.containsAnyExcept(predicate)) {
             return true;
         }
         if(!Bank.isOpen()) {

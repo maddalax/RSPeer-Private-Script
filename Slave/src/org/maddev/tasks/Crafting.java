@@ -26,7 +26,7 @@ import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.runetek.event.listeners.AnimationListener;
 import org.rspeer.runetek.event.types.AnimationEvent;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.util.function.Predicate;
 

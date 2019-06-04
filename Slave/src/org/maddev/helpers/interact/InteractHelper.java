@@ -1,5 +1,6 @@
 package org.maddev.helpers.interact;
 
+import org.maddev.Store;
 import org.rspeer.runetek.adapter.Interactable;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
@@ -10,6 +11,9 @@ public class InteractHelper {
 
     public static boolean interact(Interactable interactable, String action) {
         if(interactable == null) {
+            return false;
+        }
+        if(Players.getLocal().isAnimating()) {
             return false;
         }
         if(Players.getLocal().isMoving() && Movement.isDestinationSet() && Movement.getDestinationDistance() > 2) {

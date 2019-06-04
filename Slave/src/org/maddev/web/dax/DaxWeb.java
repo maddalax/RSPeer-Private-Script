@@ -9,6 +9,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.rspeer.runetek.api.movement.path.PredefinedPath;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
+import org.maddev.helpers.log.Logger;
 import org.rspeer.ui.Log;
 
 import java.util.HashMap;
@@ -32,7 +33,6 @@ public class DaxWeb {
             long now = System.currentTimeMillis();
             for (Map.Entry<Position, PathCache> cache : cache.entrySet()) {
                 if ((now - cache.getValue().lastUpdate) > TimeUnit.SECONDS.toMillis(90)) {
-                    Log.fine("Removing path form cache after 90 seconds.");
                     DaxWeb.cache.remove(cache.getKey());
                 }
             }
@@ -44,16 +44,10 @@ public class DaxWeb {
         pathRequest.add("start",new Point3D(Players.getLocal().getPosition()).toJson());
         pathRequest.add("end", new Point3D(destination).toJson());
         pathRequest.add("player", new PlayerDetails().toJson());
-        String json = g.toJson(pathRequest);
-
-        System.out.println(json);
 
         if(cache.containsKey(destination)) {
-            System.out.println("Getting path from cache.");
-            Log.fine("Getting path from cache.");
             return PredefinedPath.build(cache.get(destination).path);
         }
-
         try {
             HttpResponse<String> response = Unirest.post("https://api.dax.cloud/walker/generatePath")
                     .header("key", DaxWeb.key)
@@ -62,11 +56,10 @@ public class DaxWeb {
                     .header("Accept", "application/json")
                     .body(pathRequest.toString()).asString();
 
-            System.out.println(response.getBody());
             DaxPathResult result = g.fromJson(response.getBody(), DaxPathResult.class);
 
             if(result.getPathStatus() != DaxPathStatus.SUCCESS) {
-                Log.severe("Failed to generate path with Dax Web. " + result.getPathStatus() + " " + response.getBody());
+                Logger.severe("Failed to generate path with Dax Web. " + result.getPathStatus() + " " + response.getBody());
                 return null;
             }
 
@@ -79,6 +72,7 @@ public class DaxWeb {
 
         } catch (UnirestException e) {
             e.printStackTrace();
+            Log.severe(e);
         }
 
         return null;

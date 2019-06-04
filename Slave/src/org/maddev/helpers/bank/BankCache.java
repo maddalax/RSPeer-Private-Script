@@ -27,12 +27,13 @@ public class BankCache {
         return cache.getOrDefault(name, 0);
     }
 
-    private static boolean isCached() {
+    public static boolean isCached() {
        return cache.size() != 0;
     }
 
     private static void initialize() {
         while (!isCached()) {
+            Log.fine("Attempting to cache bank.");
             Store.setAction("Caching bank.");
             if(Store.getState() == State.SCRIPT_STOPPED) {
                 break;
@@ -48,6 +49,10 @@ public class BankCache {
             BankHelper.open(BankHelper.nearest(), true);
         }
         Store.setAction("Succesfully cached bank.");
+    }
+
+    public static Map<String, Integer> getCache() {
+        return cache;
     }
 
     public static void cache() {

@@ -30,7 +30,7 @@ import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
 
     private boolean shouldHunt() {
         int level = Skills.getCurrentLevel(Skill.HUNTER);
-        return level > 9 && level < Config.HUNTING_REQUIRED;
+        return level >= 9 && level < Config.HUNTING_REQUIRED;
     }
 
     private boolean hasGamesNecklace() {
@@ -196,7 +196,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         if (!Players.getLocal().getPosition().equals(trap)) {
             Store.setAction("Walking to trap.");
             if (!Movement.setWalkFlagWithConfirm(trap)) {
-                Log.fine("Could not walk. Resetting.");
+                Logger.fine("Could not walk. Resetting.");
                 trap = null;
             }
             Time.sleep(800, 1800);
@@ -285,10 +285,9 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         }
         if (e.getMessage().contains("You begin setting up the trap")) {
             trap = Players.getLocal().getPosition();
-            Log.fine("New trap position: " + trap);
         }
         if (e.getMessage().contains("You may set up only one trap")) {
-            Log.fine("Somehow we lost our trap position?");
+            Logger.fine("Somehow we lost our trap position?");
             new Thread(() -> {
                 SceneObject snare = SceneObjects.getNearest("Bird snare");
                 if (snare != null && snare.containsAction("Dismantle")) {

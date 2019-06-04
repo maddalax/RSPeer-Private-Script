@@ -22,7 +22,7 @@ import org.rspeer.runetek.api.component.tab.Skills;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.providers.RSItemDefinition;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -103,7 +103,7 @@ public class GrandExchange extends Task {
             try {
                 getImplings();
             } catch (IOException e) {
-                Log.severe("Failed to calculate impling prices. Can not buy.");
+                Logger.severe("Failed to calculate impling prices. Can not buy.");
                 e.printStackTrace();
             }
             return Random.nextInt(350, 550);
@@ -261,8 +261,7 @@ public class GrandExchange extends Task {
         int eclecticMultiplier = 2;
         int natureMultiplier = 1;
 
-        Log.fine("Prices: " + essencePrice + " " + eclecticPrice + " " + naturePrice);
-
+        Logger.fine("Essence Prices: " + essencePrice + " " + eclecticPrice + " " + naturePrice);
 
         int coins = Inventory.getCount(true, "Coins");
         coins = (coins / 100) * 90;
@@ -271,8 +270,6 @@ public class GrandExchange extends Task {
         int[] prices = new int[]{essencePrice, eclecticPrice, naturePrice};
         Arrays.sort(prices);
         int maxPrice = prices[prices.length - 1];
-
-        Log.fine("Max price before: " + maxPrice);
 
         if(maxPrice == essencePrice) {
             maxPrice = maxPrice * essenceMultiplier;
@@ -286,13 +283,9 @@ public class GrandExchange extends Task {
             maxPrice = maxPrice * natureMultiplier;
         }
 
-        Log.fine("Max Price: " + maxPrice);
-
         int essenceQuantity = 0;
         int eclecticQuantity = 0;
         int natureQuantity = 0;
-
-        Log.fine("Coins: " + coins);
 
         while (coins > maxPrice) {
             coins = coins - (essenceMultiplier * essencePrice);
@@ -303,7 +296,7 @@ public class GrandExchange extends Task {
             natureQuantity += natureMultiplier;
         }
 
-        Log.fine("Quantities: " + essenceQuantity + " " + eclecticQuantity + " " + natureQuantity);
+        Logger.fine("Buying Essence Quantities: " + essenceQuantity + " " + eclecticQuantity + " " + natureQuantity);
 
         items[0] = new ItemPair("Essence impling jar", essenceQuantity, 1);
         items[1] = new ItemPair("Eclectic impling jar", eclecticQuantity, 1);

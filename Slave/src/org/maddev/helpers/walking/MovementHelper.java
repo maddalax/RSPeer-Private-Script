@@ -31,7 +31,7 @@ public class MovementHelper {
     }
 
     public static boolean setWalkFlag(Position p) {
-        if(Movement.getDestination().equals(p)) {
+        if(Movement.isDestinationSet() && Movement.getDestination().equals(p)) {
             return false;
         }
         Movement.setWalkFlag(p);

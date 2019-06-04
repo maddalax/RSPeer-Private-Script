@@ -2,22 +2,20 @@ package org.maddev.helpers.walking;
 
 import org.maddev.State;
 import org.maddev.Store;
+import org.maddev.helpers.log.Logger;
 import org.maddev.web.dax.DaxWeb;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.tab.Magic;
 import org.rspeer.runetek.api.component.tab.Spell;
 import org.rspeer.runetek.api.movement.Movement;
-import org.rspeer.runetek.api.movement.path.HpaPath;
 import org.rspeer.runetek.api.movement.path.Path;
-import org.rspeer.runetek.api.movement.path.PredefinedPath;
 import org.rspeer.runetek.api.movement.pathfinding.executor.PathExecutor;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
-import org.rspeer.ui.Log;
 
 import java.util.HashSet;
 
@@ -28,6 +26,11 @@ public class CustomWalker implements ChatMessageListener  {
     private static HashSet<CustomPath> customPaths;
     private long timeTillTeleport;
     private static final Position LUMBRIDGE_TILE = new Position(3220, 3218, 0);
+    private static boolean shouldWalk;
+
+    public static boolean isShouldWalk() {
+        return shouldWalk;
+    }
 
     public CustomWalker() {
         Game.getEventDispatcher().register(this);
@@ -58,7 +61,6 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
-        Log.fine("Walking to " + p.toString() + " Distance: " + p.distance());
         if(useHomeTeleport && timeTillTeleport < System.currentTimeMillis()) {
             if(!useHomeTeleport(p)) {
                 return false;
@@ -71,7 +73,6 @@ public class CustomWalker implements ChatMessageListener  {
     public boolean walk(Position p, boolean acceptEndBlocked) {
         boolean usedDaxWeb = false;
         if(Players.getLocal().getPosition().getFloorLevel() == p.getFloorLevel()) {
-            Log.fine("Walking to same floor level, attempting dax web first.");
             Path bPath = DaxWeb.build(p);
             if(bPath != null) {
                 usedDaxWeb = true;
@@ -79,13 +80,11 @@ public class CustomWalker implements ChatMessageListener  {
             }
         }
         if(!usedDaxWeb) {
-            Log.fine("Did not use Dax Path.");
             currentPath = Movement.buildPath(p);
         }
-        boolean shouldWalk = shouldWalk();
-        Log.fine("Should walk: " + shouldWalk);
+        CustomWalker.shouldWalk = shouldWalk();
         if(currentPath == null) {
-            Log.severe("Failed to generate path to " + p);
+            Logger.severe("Failed to generate path to " + p);
             return false;
         }
         return !shouldWalk || PathExecutor.getPathExecutorSupplier().get().execute(currentPath);
@@ -95,7 +94,7 @@ public class CustomWalker implements ChatMessageListener  {
         if(!Players.getLocal().isMoving()) {
             return true;
         }
-        if(Movement.isDestinationSet() && !Movement.isWalkable(Movement.getDestination())) {
+        if(Movement.isDestinationSet() && !Movement.isWalkable(Movement.getDestination(), false)) {
             return true;
         }
        return !Movement.isDestinationSet() || Movement.getDestinationDistance() < 6;
@@ -136,20 +135,20 @@ public class CustomWalker implements ChatMessageListener  {
             if (e.getType() != ChatMessageType.GAME && e.getType() != ChatMessageType.SERVER) {
                 return;
             }
-            Log.fine(e.getMessage());
+            Logger.fine(e.getMessage());
             if (e.getMessage().contains("You need to wait another ")) {
                 if(e.getMessage().contains("another minute")) {
                     timeTillTeleport = System.currentTimeMillis() + (60000);
-                    Log.fine("Can't teleport for at-least " + 1 + " minute.");
+                    Logger.fine("Can't teleport for at-least " + 1 + " minute.");
                     return;
                 }
                 int minutes = Integer.parseInt(e.getMessage().replace("You need to wait another", "")
                         .replace("minutes to cast this spell.", "").trim());
                 timeTillTeleport = System.currentTimeMillis() + (minutes * 60000);
-                Log.fine("Can't teleport for at-least " + minutes + " minutes.");
+                Logger.fine("Can't teleport for at-least " + minutes + " minutes.");
             }
         } catch (Exception ex) {
-            Log.severe(ex.getMessage());
+            Logger.severe(ex.getMessage());
         }
     }
 }

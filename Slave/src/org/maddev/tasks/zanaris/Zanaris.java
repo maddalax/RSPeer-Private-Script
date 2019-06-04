@@ -1,12 +1,19 @@
 package org.maddev.tasks.zanaris;
 
+import org.maddev.State;
 import org.maddev.Store;
+import org.maddev.helpers.bank.BankHelper;
+import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.zanris.ZanarisHelper;
 import org.maddev.tasks.LostCity;
 import org.rspeer.runetek.adapter.component.InterfaceComponent;
+import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.SceneObject;
+import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Bank;
@@ -16,9 +23,13 @@ import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
+import org.rspeer.runetek.event.listeners.ChatMessageListener;
+import org.rspeer.runetek.event.types.ChatMessageEvent;
+import org.rspeer.runetek.event.types.ChatMessageType;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
-public class Zanaris extends Task {
+public class Zanaris extends Task implements ChatMessageListener {
 
     @Override
     public boolean validate() {
@@ -29,6 +40,15 @@ public class Zanaris extends Task {
 
     private InterfaceAddress JAR_GENERATOR = new InterfaceAddress(() -> Interfaces.getFirst(540, s -> s.getText().contains("Jar generator")));
 
+    private static int chargesLeft = -1;
+
+    public static int getChargesLeft() {
+        return chargesLeft;
+    }
+
+    public Zanaris() {
+        Game.getEventDispatcher().register(this);
+    }
 
     @Override
     public int execute() {
@@ -37,7 +57,7 @@ public class Zanaris extends Task {
             handlePuroPuro();
             return loop;
         }
-        if(Inventory.contains("Impling jar")) {
+        if(Inventory.contains("Jar generator")) {
             handleImplingJar();
             return loop;
         }
@@ -46,6 +66,7 @@ public class Zanaris extends Task {
             ZanarisHelper.goToZanaris(true);
             return loop;
         }
+        getImplingJar();
         return loop;
     }
 
@@ -60,17 +81,17 @@ public class Zanaris extends Task {
             Store.setAction("Clicking Jar Generator.");
             generator.click();
             Time.sleep(1500, 3500);
-            InterfaceComponent ok = Interfaces.getComponent(540, 125);
+            InterfaceComponent ok = Interfaces.getComponent(540, 126);
             if(ok == null) {
                 Store.setAction("Failed to find ok interface.");
                 return;
             }
             Store.setAction("Clicking Confirm.");
-            ok.interact("Ok");
-            Time.sleep(1500, 2000);
+            ok.click();
+            Time.sleep(1000, 1500);
             return;
         }
-        if(!Inventory.contains("Impling jar")) {
+        if(!Inventory.contains("Jar generator")) {
             Npc elnok = Npcs.getNearest("Elnock Inquisitor");
             if (elnok == null) {
                 Store.setAction("Failed to find elnok.");
@@ -92,8 +113,59 @@ public class Zanaris extends Task {
     }
 
     private void handleImplingJar() {
-        if(Bank.depositAllExcept("Impling jar")) {
-
+        if(!BankHelper.depositAllExcept(BankLocation.getNearest(), s -> s.getName().equals("Jar generator") || s.getName().equals("Impling jar"))) {
+            return;
         }
+        if(Inventory.isFull()) {
+            if(!BankHelper.depositAllExcept(BankLocation.getNearest(), s -> s.getName().equals("Jar generator"))) {
+                return;
+            }
+        }
+        if(chargesLeft != 0) {
+            Store.setAction("Using Jar generator - " + chargesLeft);
+            String action = chargesLeft == 1 ? "Butterfly-jar" : "Impling-jar";
+            Item i = Inventory.getFirst("Jar generator");
+            if(i == null) {
+                Store.setAction("Failed to get jar generator?");
+                return;
+            }
+            if(!Players.getLocal().isAnimating()) {
+                i.interact(action);
+            }
+            Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
+        }
+    }
+
+    private void getImplingJar() {
+        ItemPair[] items = new ItemPair[] {
+                new ItemPair("Essence impling jar", 3),
+                new ItemPair("Eclectic impling jar", 2),
+                new ItemPair("Nature impling jar", 1)
+        };
+        if(!BankHelper.withdrawOnly(BankLocation.getNearest(), false, items)) {
+            return;
+        }
+        SceneObject circle = SceneObjects.getNearest("Centre of crop circle");
+        if(circle == null || circle.distance() > 15) {
+            Store.setAction("Walking to circle.");
+            MovementHelper.setWalkFlag(ZanarisHelper.PURO_PURO_PEN);
+            return;
+        }
+        Store.setAction("Interacting with circle.");
+        if(InteractHelper.interact(circle, "Enter")) {
+            Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2500);
+        }
+    }
+
+    @Override
+    public void notify(ChatMessageEvent e) {
+        if(Store.getState() == State.SCRIPT_STOPPED) {
+            Game.getEventDispatcher().deregister(this);
+        }
+        Log.fine(e.getType() + " " + e.getMessage());
+        if(e.getType() == ChatMessageType.PUBLIC || !e.getMessage().contains("charges left in your jar generator")) {
+            return;
+        }
+        chargesLeft = Integer.parseInt(e.getMessage().replace("You have ", "").replace("charges left in your jar generator.", "").trim());
     }
 }

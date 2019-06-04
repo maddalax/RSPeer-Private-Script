@@ -2,6 +2,12 @@ package org.maddev.paint;
 
 import org.maddev.Main;
 import org.maddev.Store;
+import org.maddev.helpers.walking.CustomWalker;
+import org.maddev.helpers.walking.MovementHelper;
+import org.maddev.tasks.zanaris.Zanaris;
+import org.maddev.ws.WebSocket;
+import org.rspeer.runetek.api.movement.Movement;
+import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.event.listeners.RenderListener;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.script.ScriptMeta;
@@ -36,6 +42,18 @@ public final class ScriptPaint implements RenderListener {
         stats.put("Runtime", new PaintStatistic(() -> context.getRuntime().toElapsedString()));
         stats.put("Status", new PaintStatistic(() -> Store.getTask() == null ? "None" : Store.getTask()));
         stats.put("Action", new PaintStatistic(() -> Store.getAction() == null ? "None" : Store.getAction()));
+        stats.put("Should Walk", new PaintStatistic(() -> String.valueOf(CustomWalker.isShouldWalk())));
+        stats.put("Destination", new PaintStatistic(() -> {
+            if(!Movement.isDestinationSet()) {
+                return "None";
+            }
+            Position p = Movement.getDestination();
+            return p.getX() + ", " + p.getY() + ", " + p.getFloorLevel();
+        }));
+        stats.put("Charges Left", new PaintStatistic(() -> String.valueOf(Zanaris.getChargesLeft())));
+        stats.put("WS", new PaintStatistic(() -> WebSocket.getInstance().isConnected() ? "Connected." : "Not Connected."));
+        stats.put("WS Received", new PaintStatistic(() -> String.valueOf(WebSocket.getInstance().getMessagesRecieved())));
+        stats.put("WS Sent", new PaintStatistic(() -> String.valueOf(WebSocket.getInstance().getMessagesSent())));
     }
 
     public Color getOutline() {

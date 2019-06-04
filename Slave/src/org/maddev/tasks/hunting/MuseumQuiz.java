@@ -24,7 +24,7 @@ import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         if (didFinishQuiz()) {
             talkToOrlando();
             list.clear();
-            Log.info("Finished Museum Quiz.");
+            Logger.fine("Finished Museum Quiz.");
             return;
         }
         if (!startedQuiz()) {

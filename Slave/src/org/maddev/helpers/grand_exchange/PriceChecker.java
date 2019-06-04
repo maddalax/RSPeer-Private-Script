@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -20,7 +20,7 @@ public class PriceChecker {
 
     static {
         executor.scheduleAtFixedRate(() -> {
-           Log.fine("Clearing price cache.");
+           Logger.fine("Clearing price cache.");
            OSBUDDY_SUMMARY_JSON = null;
         }, 1, 30, TimeUnit.MINUTES);
     }

@@ -9,7 +9,7 @@ import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.GrandExchangeSetup;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -49,7 +49,7 @@ public class GrandExchangePurchaser {
         Store.setAction("Creating offer for " + pair.getName());
 
         if (!GrandExchangeSetup.isOpen()) {
-            Log.fine("Attempting to create offer.");
+            Logger.fine("Attempting to create offer.");
             GrandExchange.createOffer(RSGrandExchangeOffer.Type.BUY);
             Time.sleep(500, 1000);
             return false;
@@ -148,7 +148,6 @@ public class GrandExchangePurchaser {
             return false;
         }
         int count = PlayerHelper.getTotalCount(pair.getName());
-        Log.fine("Count " + count + " " + pair.getName());
         return count < pair.getQuantity();
     }
 

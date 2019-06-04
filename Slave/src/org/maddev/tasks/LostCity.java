@@ -31,7 +31,7 @@ import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.runetek.event.listeners.RenderListener;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class LostCity extends Task implements RenderListener {
         if(Health.getPercent() <= 50) {
             Item lobster = Inventory.getFirst("Lobster");
             if(lobster == null) {
-                Log.fine("Yikes no lobster, we are dead boys.");
+                Logger.fine("Yikes no lobster, we are dead boys.");
             }
             else {
                 lobster.click();
@@ -114,7 +114,7 @@ public class LostCity extends Task implements RenderListener {
     }
 
     private void finishQuest() {
-        Log.info("Finishing quest.");
+        Store.setAction("Finishing Lost City.");
         // Teleport out of cave.
         if(Players.getLocal().getPosition().getY() > 9000) {
 
@@ -235,7 +235,7 @@ public class LostCity extends Task implements RenderListener {
 
             boolean inSafeZone = Players.getLocal().getPosition().equals(zombieSafeSpot);
             if (!inSafeZone) {
-                Movement.setWalkFlagWithConfirm(zombieSafeSpot);
+                Movement.setWalkFlag(zombieSafeSpot);
                 Time.sleep(300, 550);
                 return;
             }
@@ -256,7 +256,7 @@ public class LostCity extends Task implements RenderListener {
 
         if(spirit == null) {
             if(!Players.getLocal().getPosition().equals(treeSpot)) {
-                MovementHelper.setWalkFlag(treeSpot);
+                Movement.setWalkFlag(treeSpot);
                 return;
             }
             SceneObject tree = SceneObjects.getNearest("Dramen tree");
@@ -286,10 +286,11 @@ public class LostCity extends Task implements RenderListener {
         Store.setAction("Starting Lost City.");
         Position startTile = new Position(3148, 3205, 0);
         if (!startTile.isLoaded() || startTile.distance() > 10) {
+            Store.setAction("Walking to start tile.");
             MovementHelper.walkRandomized(startTile, false);
             return;
         }
-        DialogueHelper.process("Warrior", "What are you camped", "Who's ZanarisHelper", "If it's hidden", "Looks like you don't");
+        DialogueHelper.process("Warrior", "What are you camped", "Who's Zanaris", "If it's hidden", "Looks like you don't");
     }
 
     private void interactTree() {
