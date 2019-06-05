@@ -24,9 +24,13 @@ public class CustomWalker implements ChatMessageListener  {
     private CustomPath currentCustomPath;
     private Path currentPath;
     private static HashSet<CustomPath> customPaths;
-    private long timeTillTeleport;
+    private static long timeTillTeleport;
     private static final Position LUMBRIDGE_TILE = new Position(3220, 3218, 0);
     private static boolean shouldWalk;
+
+    public static boolean canUseHomeTeleport() {
+     return timeTillTeleport < System.currentTimeMillis();
+    }
 
     public static boolean isShouldWalk() {
         return shouldWalk;
@@ -61,7 +65,7 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
-        if(useHomeTeleport && timeTillTeleport < System.currentTimeMillis()) {
+        if(useHomeTeleport && canUseHomeTeleport()) {
             if(!useHomeTeleport(p)) {
                 return false;
             }

@@ -8,7 +8,6 @@ import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskScript;
-import org.maddev.helpers.log.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +68,10 @@ public class SubmitTasks extends Task {
         }
 
         submitOnce(new EquipGlory());
+
+        submitOnce(new SellJars());
         submitOnce(exchange);
+
         if(!quiz.isDone()) {
             submitOnce(quiz);
         }

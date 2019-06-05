@@ -3,18 +3,20 @@ package org.maddev.helpers.grand_exchange;
 import org.maddev.Store;
 import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
+import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.GrandExchangeSetup;
+import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GrandExchangePurchaser {
+public class GrandExchangeSeller {
 
     private CopyOnWriteArrayList<ItemPair> pairs;
 
-    public GrandExchangePurchaser(ItemPair... pairs) {
+    public GrandExchangeSeller(ItemPair... pairs) {
         this.pairs = new CopyOnWriteArrayList<>(pairs);
     }
 
@@ -38,40 +40,23 @@ public class GrandExchangePurchaser {
         return false;
     }
 
-    private boolean purchase(ItemPair pair) {
+    private boolean sell(ItemPair pair) {
         if (!GrandExchangeHelper.open()) {
+            return false;
+        }
+
+        if (!GrandExchangeSetup.isOpen()) {
+            Logger.fine("Attempting to create offer.");
+            GrandExchange.createOffer(RSGrandExchangeOffer.Type.SELL);
+            Time.sleep(500, 1000);
             return false;
         }
 
         Store.setAction("Creating offer for " + pair.getName());
 
-        if (!GrandExchangeSetup.isOpen()) {
-            Logger.fine("Attempting to create offer.");
-            GrandExchange.createOffer(RSGrandExchangeOffer.Type.BUY);
-            Time.sleep(500, 1000);
-            return false;
-        }
-
         if (GrandExchangeSetup.getItem() == null) {
-            Store.setAction("Attempting to set item -> " + pair.getName());
+            Logger.fine("Attempting to create offer.");
             GrandExchangeSetup.setItem(pair.getName());
-            Time.sleep(500, 1000);
-            return false;
-        }
-
-        if (!GrandExchangeSetup.getItem().getName().equals(pair.getName())) {
-            Store.setAction("Attempting to set item " + pair.getName());
-            GrandExchangeSetup.setItem(pair.getName());
-            Time.sleep(500, 1000);
-            return false;
-        }
-
-        int current = PlayerHelper.getTotalCount(pair.getName());
-        int quantity = pair.getQuantity() - current;
-        if (GrandExchangeSetup.getQuantity() != quantity) {
-            Store.setAction("Setting quantity to " + quantity + ".");
-            GrandExchangeSetup.setQuantity(quantity);
-            Time.sleep(500, 1000);
             return false;
         }
 
@@ -90,15 +75,8 @@ public class GrandExchangePurchaser {
 
         } else {
 
-            if (pair.getPriceMinimum() != 0 && GrandExchangeSetup.getPricePerItem() < pair.getPriceMinimum()) {
-                Store.setAction("Setting price.");
-                GrandExchangeSetup.setPrice(pair.getPriceMinimum());
-                Time.sleep(100, 200);
-                return false;
-            } else {
-                Store.setAction("Attempting to increase price.");
-                GrandExchangeSetup.increasePrice(pair.getIncreasePriceTimes());
-            }
+            Store.setAction("Attempting to decrease price.");
+            GrandExchangeSetup.decreasePrice(pair.getIncreasePriceTimes());
         }
 
         Time.sleep(1500, 2500);
@@ -112,7 +90,7 @@ public class GrandExchangePurchaser {
 
     private RSGrandExchangeOffer getOffer(ItemPair pair) {
         RSGrandExchangeOffer[] offers = GrandExchange.getOffers(s ->
-                s.getType() == RSGrandExchangeOffer.Type.BUY &&
+                s.getType() == RSGrandExchangeOffer.Type.SELL &&
                         s.getItemDefinition() != null &&
                         s.getItemDefinition().getName().toLowerCase().equals(pair.getName().toLowerCase()));
         if (offers.length == 0) {
@@ -121,15 +99,15 @@ public class GrandExchangePurchaser {
         return offers[0];
     }
 
-    public boolean purchase() {
+    public boolean sell() {
         collect();
         int purchaseCount = 0;
         for (ItemPair pair : pairs) {
-            if (!shouldBuy(pair)) {
+            if (!shouldSell(pair)) {
                 purchaseCount++;
                 continue;
             }
-            if (!purchase(pair)) {
+            if (!sell(pair)) {
                 Time.sleep(1000, 1800);
                 break;
             } else {
@@ -140,12 +118,11 @@ public class GrandExchangePurchaser {
         return purchaseCount == pairs.size();
     }
 
-    private boolean shouldBuy(ItemPair pair) {
+    private boolean shouldSell(ItemPair pair) {
         if (getOffer(pair) != null) {
             return false;
         }
-        int count = PlayerHelper.getTotalCount(pair.getName());
-        return count < pair.getQuantity();
+        return Inventory.contains(pair.getName());
     }
 
     private boolean collect() {

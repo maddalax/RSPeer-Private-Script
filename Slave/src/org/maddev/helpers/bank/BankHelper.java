@@ -16,6 +16,7 @@ import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
+import org.rspeer.ui.Log;
 
 import java.util.Arrays;
 import java.util.List;
@@ -84,6 +85,19 @@ public class BankHelper {
         return true;
     }
 
+    public static boolean withdrawNoted(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
+        for (ItemPair item : pair) {
+            boolean isAll = item.getQuantity() == Integer.MAX_VALUE;
+            if(!Bank.contains(item.getName())) {
+                continue;
+            }
+            if(!(isAll ? withdrawAllNoted(item.getName(), location, useHomeTeleport) : withdrawNoted(item.getName(), item.getQuantity(), location, useHomeTeleport))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean withdrawOnly(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
         List<String> names = Arrays.stream(pair).map(ItemPair::getName).collect(Collectors.toList());
         int size = 0;
@@ -144,6 +158,7 @@ public class BankHelper {
         }
         Bank.withdraw(predicate, quantity);
         Time.sleep(490, 759);
+        BankCache.cache();
         return Inventory.contains(predicate);
     }
 
@@ -172,14 +187,30 @@ public class BankHelper {
         }
         Bank.withdrawAll(item);
         Time.sleep(490, 759);
+        BankCache.cache();
         return Inventory.contains(item);
+    }
+
+    public static boolean withdrawAllNoted(String item, BankLocation location, boolean useHomeTeleport) {
+        if(Bank.isOpen() && Bank.getWithdrawMode() != Bank.WithdrawMode.NOTE) {
+            Bank.setWithdrawMode(Bank.WithdrawMode.NOTE);
+            Time.sleep(250, 550);
+            return false;
+        }
+        return withdrawAll(item, location, useHomeTeleport);
+    }
+
+    public static boolean withdrawNoted(String item, int quantity, BankLocation location, boolean useHomeTeleport) {
+        if(Bank.isOpen() && Bank.getWithdrawMode() != Bank.WithdrawMode.NOTE) {
+            Bank.setWithdrawMode(Bank.WithdrawMode.NOTE);
+            Time.sleep(250, 550);
+            return false;
+        }
+        return withdraw(location, useHomeTeleport, item, quantity);
     }
 
     public static boolean depositAllExcept(BankLocation location, Predicate<Item> predicate) {
         Store.setAction("Depositing items.");
-        if(!Inventory.containsAnyExcept(predicate)) {
-            return true;
-        }
         if(!Bank.isOpen()) {
             BankHelper.open(location);
             Time.sleep(450, 850);
@@ -187,6 +218,7 @@ public class BankHelper {
         }
         Bank.depositAllExcept(predicate);
         Time.sleep(450, 850);
+        BankCache.cache();
         return Inventory.containsOnly(predicate);
     }
 

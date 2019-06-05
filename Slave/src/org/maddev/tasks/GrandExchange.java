@@ -2,14 +2,16 @@ package org.maddev.tasks;
 
 import org.maddev.Config;
 import org.maddev.Store;
+import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.crafting.CraftingHelper;
 import org.maddev.helpers.equipment.EquipmentHelper;
+import org.maddev.helpers.grand_exchange.GrandExchangeHelper;
 import org.maddev.helpers.grand_exchange.GrandExchangePurchaser;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.grand_exchange.PriceChecker;
+import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
-import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.zanris.ZanarisHelper;
 import org.rspeer.runetek.api.Definitions;
 import org.rspeer.runetek.api.commons.BankLocation;
@@ -19,10 +21,8 @@ import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.component.tab.Skill;
 import org.rspeer.runetek.api.component.tab.Skills;
-import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.providers.RSItemDefinition;
 import org.rspeer.script.task.Task;
-import org.maddev.helpers.log.Logger;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,8 +31,7 @@ public class GrandExchange extends Task {
 
     private GrandExchangePurchaser purchaser;
 
-    @Override
-    public boolean validate() {
+    private boolean needsToPurchase() {
         if (Skills.getCurrentLevel(Skill.CRAFTING) < Config.CRAFTING_REQUIRED) {
             if(!hasCraftingSupplies()) {
                 Store.setAction("Getting Crafting Supplies.");
@@ -64,13 +63,30 @@ public class GrandExchange extends Task {
     }
 
     @Override
+    public boolean validate() {
+        if(needsToPurchase()) {
+            return true;
+        }
+        if(Inventory.contains("Coins")) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public int execute() {
         Store.setTask("Grand Exchange");
-        if (walkTo()) {
+
+        if(Inventory.contains("Coins") && !needsToPurchase()) {
+            depositCoins();
             return Random.nextInt(350, 550);
         }
 
-        if (!Inventory.contains("Coins")) {
+        if (GrandExchangeHelper.walkTo()) {
+            return Random.nextInt(350, 550);
+        }
+
+        if (!Inventory.contains("Coins") || BankCache.contains("Coins")) {
             if(Inventory.isFull()) {
                 Bank.depositInventory();
                 Time.sleep(850, 1150);
@@ -112,14 +128,10 @@ public class GrandExchange extends Task {
         return Random.nextInt(350, 550);
     }
 
-    private boolean walkTo() {
-        Store.setAction("Walking to Grand Exchange.");
-        Position p = BankLocation.GRAND_EXCHANGE.getPosition();
-        if (p.distance() > 10) {
-            return MovementHelper.walkRandomized(BankLocation.GRAND_EXCHANGE.getPosition(), false);
-        }
-        return false;
+    private void depositCoins() {
+        BankHelper.depositAllExcept(BankLocation.getNearest(), s -> false);
     }
+
 
     private boolean getCraftingSupplies() {
         Store.setAction("Getting crafting supplies.");
@@ -240,7 +252,7 @@ public class GrandExchange extends Task {
     }
 
     private boolean hasImplings() {
-        return PlayerHelper.hasAll("Essence impling jar", "Eclectic impling jar", "Nature impling jar");
+        return ZanarisHelper.hasRequiredItems();
     }
 
     private ItemPair[] calculateImplingsQuantity() throws IOException {

@@ -72,6 +72,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         Logger.severe("Script has stopped.");
         PlayerUpdateSender.getInstance().dispose();
         WebSocket.getInstance().dispose();
+        BankCache.dispose();
         Store.setState(org.maddev.State.SCRIPT_STOPPED);
         super.onStop();
     }

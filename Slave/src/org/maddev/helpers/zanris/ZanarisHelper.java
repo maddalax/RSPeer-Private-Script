@@ -2,10 +2,10 @@ package org.maddev.helpers.zanris;
 
 import org.maddev.Store;
 import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.walking.MovementHelper;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.commons.Time;
-import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Position;
@@ -21,6 +21,12 @@ public class ZanarisHelper {
 
     public static boolean inZanaris() {
         return PURO_PURO_PEN.isLoaded() || BANK.isLoaded() || ZANARIS_START.isLoaded();
+    }
+
+    public static boolean hasRequiredItems() {
+        return PlayerHelper.getTotalCount("Essence impling jar") >= 3
+                && PlayerHelper.getTotalCount("Eclectic impling jar") >= 2
+                && PlayerHelper.getTotalCount("Nature impling jar") >= 1;
     }
 
     public static boolean inPuroPuro() {

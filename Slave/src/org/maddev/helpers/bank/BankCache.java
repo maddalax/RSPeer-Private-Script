@@ -9,10 +9,23 @@ import org.rspeer.ui.Log;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class BankCache {
 
     private static Map<String, Integer> cache = new HashMap<>();
+    private static ScheduledExecutorService executor;
+
+    static {
+        executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(BankCache::cache, 1, 15, TimeUnit.SECONDS);
+    }
+
+    public static void dispose() {
+        executor.shutdown();
+    }
 
     public static boolean contains(String name) {
         initialize();

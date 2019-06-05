@@ -2,9 +2,11 @@ package org.maddev.tasks.zanaris;
 
 import org.maddev.State;
 import org.maddev.Store;
+import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.zanris.ZanarisHelper;
 import org.maddev.tasks.LostCity;
@@ -16,7 +18,6 @@ import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
-import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.InterfaceAddress;
 import org.rspeer.runetek.api.component.Interfaces;
 import org.rspeer.runetek.api.component.tab.Inventory;
@@ -57,7 +58,11 @@ public class Zanaris extends Task implements ChatMessageListener {
             handlePuroPuro();
             return loop;
         }
-        if(Inventory.contains("Jar generator")) {
+        if(Inventory.getItems(Item::isNoted).length > 0) {
+            BankHelper.depositAllExcept(BankLocation.getNearest(), s -> false);
+            return loop;
+        }
+        if(PlayerHelper.hasAny("Jar generator")) {
             handleImplingJar();
             return loop;
         }
@@ -88,7 +93,7 @@ public class Zanaris extends Task implements ChatMessageListener {
             }
             Store.setAction("Clicking Confirm.");
             ok.click();
-            Time.sleep(1000, 1500);
+            Time.sleep(1500, 4500);
             return;
         }
         if(!Inventory.contains("Jar generator")) {
@@ -101,6 +106,7 @@ public class Zanaris extends Task implements ChatMessageListener {
             Time.sleep(850, 1220);
             return;
         }
+        Store.setAction("Exiting portal.");
         if(!Players.getLocal().isAnimating()) {
             SceneObject portal = SceneObjects.getNearest("Portal");
             if(portal == null) {
@@ -113,7 +119,9 @@ public class Zanaris extends Task implements ChatMessageListener {
     }
 
     private void handleImplingJar() {
-        if(!BankHelper.depositAllExcept(BankLocation.getNearest(), s -> s.getName().equals("Jar generator") || s.getName().equals("Impling jar"))) {
+        if(ZanarisHelper.BANK.distance() > 5) {
+            MovementHelper.setWalkFlag(ZanarisHelper.BANK);
+            Time.sleep(850, 1000);
             return;
         }
         if(Inventory.isFull()) {
@@ -121,19 +129,21 @@ public class Zanaris extends Task implements ChatMessageListener {
                 return;
             }
         }
-        if(chargesLeft != 0) {
-            Store.setAction("Using Jar generator - " + chargesLeft);
-            String action = chargesLeft == 1 ? "Butterfly-jar" : "Impling-jar";
-            Item i = Inventory.getFirst("Jar generator");
-            if(i == null) {
-                Store.setAction("Failed to get jar generator?");
-                return;
-            }
-            if(!Players.getLocal().isAnimating()) {
-                i.interact(action);
-            }
-            Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
+        if(!Inventory.contains("Jar generator")) {
+            BankHelper.withdraw("Jar generator", 1);
+            return;
         }
+        Store.setAction("Using Jar generator - " + chargesLeft);
+        String action = chargesLeft == 1 ? "Butterfly-jar" : "Impling-jar";
+        Item i = Inventory.getFirst("Jar generator");
+        if(i == null) {
+            Store.setAction("Failed to get jar generator?");
+            return;
+        }
+        if(!Players.getLocal().isAnimating()) {
+            i.interact(action);
+        }
+        Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
     }
 
     private void getImplingJar() {
