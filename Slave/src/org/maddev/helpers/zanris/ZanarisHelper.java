@@ -2,6 +2,7 @@ package org.maddev.helpers.zanris;
 
 import org.maddev.Store;
 import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.walking.MovementHelper;
 import org.rspeer.runetek.adapter.scene.SceneObject;
@@ -10,13 +11,14 @@ import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.SceneObjects;
+import org.rspeer.ui.Log;
 
 public class ZanarisHelper {
 
     public static Position PURO_PURO_PEN = new Position(2427, 4445, 0);
     public static Position ZANARIS_START = new Position(2452, 4470, 0);
     public static Position BANK = new Position(2382, 4459, 0);
-    public static Position HALF_WAY_BANK = new Position(2398, 4446);
+    public static Position HALF_WAY_BANK = new Position(2411, 4447);
     public static Position PURO_PURO = new Position(2594, 4318);
 
     public static boolean inZanaris() {
@@ -40,11 +42,13 @@ public class ZanarisHelper {
             return Bank.isOpen();
         }
         if(!BANK.isLoaded()) {
-            MovementHelper.setWalkFlag(PURO_PURO_PEN);
+            Logger.fine("Bank is not loaded, walking to puro puro pen.");
+            MovementHelper.setWalkFlag(HALF_WAY_BANK.isLoaded() ? HALF_WAY_BANK : PURO_PURO_PEN);
             Time.sleep(450, 850);
             return false;
         }
-        Movement.setWalkFlagWithConfirm(BANK.randomize(1));
+        Logger.fine("Setting walk flag to bank.");
+        Movement.setWalkFlag(BANK.randomize(1));
         Time.sleep(450, 850);
         return Bank.isOpen();
     }
