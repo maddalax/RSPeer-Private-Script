@@ -252,7 +252,7 @@ public class GrandExchange extends Task {
     }
 
     private boolean hasImplings() {
-        return ZanarisHelper.hasRequiredItems();
+        return PlayerHelper.hasAny("Jar generator") || ZanarisHelper.hasRequiredItems();
     }
 
     private ItemPair[] calculateImplingsQuantity() throws IOException {

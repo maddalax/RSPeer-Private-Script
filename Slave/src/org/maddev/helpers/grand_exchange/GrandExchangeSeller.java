@@ -88,7 +88,7 @@ public class GrandExchangeSeller {
         return getOffer(pair) != null;
     }
 
-    private RSGrandExchangeOffer getOffer(ItemPair pair) {
+    public RSGrandExchangeOffer getOffer(ItemPair pair) {
         RSGrandExchangeOffer[] offers = GrandExchange.getOffers(s ->
                 s.getType() == RSGrandExchangeOffer.Type.SELL &&
                         s.getItemDefinition() != null &&

@@ -56,6 +56,9 @@ public class GrandExchangeHelper {
         if (GrandExchange.isOpen()) {
             return true;
         }
+        if(walkTo()) {
+           return false;
+        }
         Store.setAction("Opening Grand Exchange");
         if (Bank.isOpen()) {
             Bank.close();
