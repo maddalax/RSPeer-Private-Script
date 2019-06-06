@@ -3,6 +3,7 @@ package org.maddev;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.maddev.helpers.bank.BankCache;
+import org.maddev.helpers.log.Logger;
 import org.maddev.paint.ScriptPaint;
 import org.maddev.tasks.SubmitTasks;
 import org.maddev.web.dax.DaxWeb;
@@ -21,14 +22,12 @@ import org.rspeer.runetek.event.types.ItemTableEvent;
 import org.rspeer.runetek.event.types.LoginResponseEvent;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.runetek.providers.subclass.GameCanvas;
-import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;
 import org.rspeer.script.task.TaskScript;
-import org.maddev.helpers.log.Logger;
 
-@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script")
+@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.1)
 public class Main extends TaskScript implements RenderListener, BankLoadListener, ItemTableListener, TaskChangeListener, LoginResponseListener {
 
     private StopWatch runtime;
