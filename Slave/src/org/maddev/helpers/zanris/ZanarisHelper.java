@@ -11,7 +11,6 @@ import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.SceneObjects;
-import org.rspeer.ui.Log;
 
 public class ZanarisHelper {
 

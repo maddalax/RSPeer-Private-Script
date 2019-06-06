@@ -40,7 +40,6 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
 
         setupWebSocket();
         GameCanvas.setInputEnabled(true);
-        setAccount(new GameAccount("Chubbyownzaa+11@gmail.com", "maddev11"));
 
         DaxWeb.initialize("sub_DPjcfqN4YkIxm8", "PUBLIC-KEY");
 

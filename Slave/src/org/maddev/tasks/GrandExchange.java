@@ -212,7 +212,7 @@ public class GrandExchange extends Task {
 
         if(purchaser == null) {
             purchaser = new GrandExchangePurchaser(
-                    new ItemPair("Bird snare", 3, 5)
+                    new ItemPair("Bird snare", 3, 20)
             );
             if (!PlayerHelper.hasAny(EquipmentHelper.getGamesNecklaces())) {
                 purchaser.addItem(new ItemPair("Games necklace(8)", 1, 5));

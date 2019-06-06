@@ -7,6 +7,8 @@ import org.maddev.helpers.player.PlayerHelper;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
+import org.rspeer.runetek.api.component.Bank;
+import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.tab.Equipment;
 import org.rspeer.runetek.api.component.tab.EquipmentSlot;
 import org.rspeer.script.task.Task;
@@ -28,6 +30,14 @@ public class EquipGlory extends Task {
     @Override
     public int execute() {
         Store.setTask("Equipping amulet glory.");
+        if(GrandExchange.isOpen()) {
+            Bank.open();
+            Time.sleep(450, 850);
+        }
+        if(Bank.isOpen()) {
+            Bank.close();
+            Time.sleep(450, 850);
+        }
         Item exists = EquipmentHelper.getChargedGlory();
         if(exists == null) {
             for (String glory : EquipmentHelper.getChargedGlories()) {
