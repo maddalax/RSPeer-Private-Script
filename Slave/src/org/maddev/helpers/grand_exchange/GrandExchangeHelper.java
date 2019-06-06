@@ -18,6 +18,7 @@ import org.rspeer.runetek.api.component.tab.Spell;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.Players;
+import org.rspeer.runetek.providers.RSGrandExchangeOffer;
 
 public class GrandExchangeHelper {
 
@@ -70,5 +71,16 @@ public class GrandExchangeHelper {
             Time.sleepUntil(GrandExchange::isOpen, 2500);
         }
         return false;
+    }
+
+    public static RSGrandExchangeOffer getBuyOffer(String name) {
+        RSGrandExchangeOffer[] offers = GrandExchange.getOffers(s ->
+                s.getType() == RSGrandExchangeOffer.Type.BUY &&
+                        s.getItemDefinition() != null &&
+                        s.getItemDefinition().getName().toLowerCase().equals(name.toLowerCase()));
+        if (offers.length == 0) {
+            return null;
+        }
+        return offers[0];
     }
 }

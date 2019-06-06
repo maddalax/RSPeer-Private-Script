@@ -21,6 +21,7 @@ import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.component.tab.Skill;
 import org.rspeer.runetek.api.component.tab.Skills;
+import org.rspeer.runetek.providers.RSGrandExchangeOffer;
 import org.rspeer.runetek.providers.RSItemDefinition;
 import org.rspeer.script.task.Task;
 
@@ -252,6 +253,23 @@ public class GrandExchange extends Task {
     }
 
     private boolean hasImplings() {
+        if(!LostCity.isComplete()) {
+            RSGrandExchangeOffer essence = GrandExchangeHelper.getBuyOffer("Essence impling jar");
+            RSGrandExchangeOffer eclectic = GrandExchangeHelper.getBuyOffer("Eclectic impling jar");
+            RSGrandExchangeOffer nature = GrandExchangeHelper.getBuyOffer("Nature impling jar");
+            //Waiting on offfer, just complete other tasks since we dont need these yet.
+            if(essence != null && essence.getProgress() != RSGrandExchangeOffer.Progress.FINISHED) {
+                return true;
+            }
+            //Waiting on offfer, just complete other tasks since we dont need these yet.
+            if(eclectic != null && eclectic.getProgress() != RSGrandExchangeOffer.Progress.FINISHED) {
+                return true;
+            }
+            //Waiting on offfer, just complete other tasks since we dont need these yet.
+            if(nature != null && nature.getProgress() != RSGrandExchangeOffer.Progress.FINISHED) {
+                return true;
+            }
+        }
         return PlayerHelper.hasAny("Jar generator") || ZanarisHelper.hasRequiredItems();
     }
 
@@ -265,6 +283,8 @@ public class GrandExchange extends Task {
         int eclecticPrice = PriceChecker.getOSBuddyPrice(eclecticDef.getId());
         int naturePrice = PriceChecker.getOSBuddyPrice(natureDef.getId());
 
+        Logger.fine("Essence Prices: " + essencePrice + " " + eclecticPrice + " " + naturePrice);
+
         essencePrice = (int) (essencePrice + (essencePrice * 0.10));
         eclecticPrice = (int) (eclecticPrice + (eclecticPrice * 0.10));
         naturePrice = (int) (naturePrice + (naturePrice * 0.10));
@@ -273,11 +293,12 @@ public class GrandExchange extends Task {
         int eclecticMultiplier = 2;
         int natureMultiplier = 1;
 
-        Logger.fine("Essence Prices: " + essencePrice + " " + eclecticPrice + " " + naturePrice);
+        Logger.fine("Essence Prices After: " + essencePrice + " " + eclecticPrice + " " + naturePrice);
 
         int coins = Inventory.getCount(true, "Coins");
         coins = (coins / 100) * 90;
 
+        Logger.fine("Total coins: " + coins);
 
         int[] prices = new int[]{essencePrice, eclecticPrice, naturePrice};
         Arrays.sort(prices);
@@ -298,6 +319,8 @@ public class GrandExchange extends Task {
         int essenceQuantity = 0;
         int eclecticQuantity = 0;
         int natureQuantity = 0;
+
+        Logger.fine("Max Price: " + maxPrice);
 
         while (coins > maxPrice) {
             coins = coins - (essenceMultiplier * essencePrice);
