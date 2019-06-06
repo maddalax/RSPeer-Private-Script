@@ -346,11 +346,14 @@ public class LostCity extends Task implements RenderListener {
         }
 
         if (!goingToEntrana) {
-            BankHelper.depositAllExcept(BankHelper.nearest(), s -> s.getName().contains("rune")
+            Predicate<Item> keep = s -> s.getName().contains("rune")
                     || s.getName().equals("Knife")
                     || s.getName().equals("Adamant axe")
                     || s.getName().contains("Amulet of glory")
-                    || s.getName().equals("Lobster"));
+                    || s.getName().equals("Lobster");
+            if(Inventory.containsAnyExcept(keep)) {
+                BankHelper.depositAllExcept(BankHelper.nearest(), keep);
+            }
         }
 
         List<ItemPair> toWithdraw = new ArrayList<>();
