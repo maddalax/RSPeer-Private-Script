@@ -24,6 +24,7 @@ import org.rspeer.runetek.api.component.tab.Skills;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
 import org.rspeer.runetek.providers.RSItemDefinition;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -84,6 +85,7 @@ public class GrandExchange extends Task {
         }
 
         if (GrandExchangeHelper.walkTo()) {
+            Log.fine("Walking to grand exchange.");
             return Random.nextInt(350, 550);
         }
 
@@ -92,6 +94,7 @@ public class GrandExchange extends Task {
                 Bank.depositInventory();
                 Time.sleep(850, 1150);
             }
+            Log.fine("Opening bank to get coins.");
             BankHelper.withdrawAll("Coins");
             return Random.nextInt(350, 550);
         }
