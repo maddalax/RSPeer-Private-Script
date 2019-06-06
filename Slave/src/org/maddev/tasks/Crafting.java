@@ -74,7 +74,7 @@ public class Crafting extends Task implements AnimationListener {
     private void craftLeather() {
 
         if (!Inventory.contains(s -> s.getName().equals("Leather") && !s.isNoted())) {
-            if (!BankHelper.depositAllExcept(BankLocation.getNearest(), s -> {
+            if (!BankHelper.depositAllExcept(BankHelper.nearest(), s -> {
                 String n = s.getName();
                 if (s.isNoted()) return false;
                 return n.equals("Needle") || n.equals("Thread") || n.equals("Leather");

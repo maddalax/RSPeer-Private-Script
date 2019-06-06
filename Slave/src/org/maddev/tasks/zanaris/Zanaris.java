@@ -59,7 +59,7 @@ public class Zanaris extends Task implements ChatMessageListener {
             return loop;
         }
         if(Inventory.getItems(Item::isNoted).length > 0) {
-            BankHelper.depositAllExcept(BankLocation.getNearest(), s -> false);
+            BankHelper.depositAllExcept(BankHelper.nearest(), s -> false);
             return loop;
         }
         if(PlayerHelper.hasAny("Jar generator")) {
@@ -125,7 +125,7 @@ public class Zanaris extends Task implements ChatMessageListener {
             return;
         }
         if(Inventory.isFull()) {
-            if(!BankHelper.depositAllExcept(BankLocation.getNearest(), s -> s.getName().equals("Jar generator"))) {
+            if(!BankHelper.depositAllExcept(BankHelper.nearest(), s -> s.getName().equals("Jar generator"))) {
                 return;
             }
         }
@@ -152,7 +152,7 @@ public class Zanaris extends Task implements ChatMessageListener {
                 new ItemPair("Eclectic impling jar", 2),
                 new ItemPair("Nature impling jar", 1)
         };
-        if(!BankHelper.withdrawOnly(BankLocation.getNearest(), false, items)) {
+        if(!BankHelper.withdrawOnly(BankHelper.nearest(), false, items)) {
             return;
         }
         SceneObject circle = SceneObjects.getNearest("Centre of crop circle");

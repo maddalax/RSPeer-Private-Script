@@ -130,7 +130,7 @@ public class GrandExchange extends Task {
     }
 
     private void depositCoins() {
-        BankHelper.depositAllExcept(BankLocation.getNearest(), s -> false);
+        BankHelper.depositAllExcept(BankHelper.nearest(), s -> false);
     }
 
 

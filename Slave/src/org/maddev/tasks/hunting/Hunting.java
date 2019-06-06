@@ -173,7 +173,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         items.add(new ItemPair(games, 1));
         items.add(new ItemPair("Bird snare", Integer.MAX_VALUE));
 
-        if (!BankHelper.withdrawOnly(BankLocation.getNearest(), true, items.toArray(ItemPair[]::new))) {
+        if (!BankHelper.withdrawOnly(BankHelper.nearest(), true, items.toArray(ItemPair[]::new))) {
             return false;
         }
 

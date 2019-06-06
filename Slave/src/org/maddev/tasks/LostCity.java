@@ -342,7 +342,7 @@ public class LostCity extends Task implements RenderListener {
         }
 
         if (!goingToEntrana) {
-            BankHelper.depositAllExcept(BankLocation.getNearest(), s -> s.getName().contains("rune")
+            BankHelper.depositAllExcept(BankHelper.nearest(), s -> s.getName().contains("rune")
                     || s.getName().equals("Knife")
                     || s.getName().equals("Adamant axe")
                     || s.getName().contains("Amulet of glory")
