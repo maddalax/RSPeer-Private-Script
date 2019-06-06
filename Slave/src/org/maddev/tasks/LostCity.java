@@ -37,6 +37,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class LostCity extends Task implements RenderListener {
 
@@ -333,11 +334,14 @@ public class LostCity extends Task implements RenderListener {
         boolean goingToEntrana = varp == 2;
 
         if (goingToEntrana) {
-            if(!BankHelper.depositAllExcept(BankLocation.DRAYNOR, s -> s.getName().contains("rune")
+            Predicate<Item> keep = s -> s.getName().contains("rune")
                     || s.getName().equals("Knife")
                     || s.getName().contains("Amulet of glory")
-                    || s.getName().equals("Lobster") && !s.isNoted())) {
-                return false;
+                    || s.getName().equals("Lobster") && !s.isNoted();
+            if(Inventory.containsAnyExcept(keep)) {
+                if (!BankHelper.depositAllExcept(BankLocation.DRAYNOR, keep)) {
+                    return false;
+                }
             }
         }
 
