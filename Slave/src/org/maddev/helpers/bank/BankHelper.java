@@ -167,8 +167,10 @@ public class BankHelper {
     }
 
     public static boolean withdrawAll(String item, BankLocation location, boolean useHomeTeleport) {
-        if(Inventory.isFull()) {
-            return true;
+        if(Inventory.isFull() && Bank.isOpen()) {
+            Bank.depositInventory();
+            Time.sleep(490, 759);
+            return false;
         }
         if(Inventory.contains(item) && Bank.getCount(item) < Inventory.getCount(item)) {
             return true;
