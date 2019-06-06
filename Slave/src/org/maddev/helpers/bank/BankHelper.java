@@ -40,7 +40,7 @@ public class BankHelper {
         if(ZanarisHelper.inZanaris()) {
             return ZanarisHelper.openZanarisBank();
         }
-        if(location == BankLocation.LUMBRIDGE_CASTLE && Players.getLocal().getPosition().getFloorLevel() == 0) {
+        if(location == BankLocation.LUMBRIDGE_CASTLE) {
             Time.sleep(350, 650);
             return MovementUtil.applyLumbridgeFix();
         }

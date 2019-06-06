@@ -136,6 +136,7 @@ public class Crafting extends Task implements AnimationListener {
             if (!BankHelper.withdrawAll("Flax", BankLocation.LUMBRIDGE_CASTLE, true)) {
                 return;
             }
+            return;
         }
         if(!Inventory.contains(flax)) {
             Store.setAction("No flax.");
