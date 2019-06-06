@@ -27,7 +27,7 @@ import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;
 import org.rspeer.script.task.TaskScript;
 
-@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.1)
+@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.2)
 public class Main extends TaskScript implements RenderListener, BankLoadListener, ItemTableListener, TaskChangeListener, LoginResponseListener {
 
     private StopWatch runtime;

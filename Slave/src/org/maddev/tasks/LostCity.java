@@ -46,6 +46,9 @@ public class LostCity extends Task implements RenderListener {
     }
 
     public static boolean mayNeedSupplies() {
+        if(Players.getLocal().getPosition().getY() > 9000 && Inventory.contains("Mind rune")) {
+            return false;
+        }
         return Varps.get(147) < 5;
     }
 
