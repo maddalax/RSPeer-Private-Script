@@ -17,6 +17,7 @@ public class BankCache {
 
     private static Map<String, Integer> cache = new HashMap<>();
     private static ScheduledExecutorService executor;
+    public static long lastUpdate;
 
     static {
         executor = Executors.newSingleThreadScheduledExecutor();
@@ -75,8 +76,12 @@ public class BankCache {
             for (Item item : Bank.getItems()) {
                 bank.put(item.getName(), item.getStackSize() + bank.getOrDefault(item.getName(), 0));
             }
+            lastUpdate = System.currentTimeMillis();
             cache = bank;
         }
     }
 
+    public static int getLastUpdate() {
+        return (int) ((System.currentTimeMillis() - lastUpdate) / 1000);
+    }
 }

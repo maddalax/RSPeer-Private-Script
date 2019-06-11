@@ -38,7 +38,7 @@ public class PlayerHelper {
                 return true;
             }
         }
-        Logger.fine("PlayerHelper", "Did not find any items in inventory, equipment, or bank cache.");
+        Logger.fine("PlayerHelper", "Did not find any items in inventory, equipment, or bank cache. " + String.join(",", names));
         return false;
     }
 

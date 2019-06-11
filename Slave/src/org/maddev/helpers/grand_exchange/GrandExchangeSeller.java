@@ -135,7 +135,7 @@ public class GrandExchangeSeller {
         return contains;
     }
 
-    private void collect() {
+    public void collect() {
         if (GrandExchange.getOffers(s -> s.getProgress() == RSGrandExchangeOffer.Progress.FINISHED).length == 0) {
             log("No offers finished, can not collect.");
             return;

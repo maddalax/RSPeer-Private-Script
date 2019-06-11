@@ -10,6 +10,7 @@ import org.maddev.helpers.walking.MovementUtil;
 import org.maddev.helpers.zanris.ZanarisHelper;
 import org.rspeer.runetek.adapter.Interactable;
 import org.rspeer.runetek.adapter.component.Item;
+import org.rspeer.runetek.api.Definitions;
 import org.rspeer.runetek.api.commons.BankLocation;
 import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.Bank;
@@ -17,6 +18,7 @@ import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.SceneObjects;
 import org.maddev.helpers.log.Logger;
+import org.rspeer.runetek.providers.RSItemDefinition;
 
 import java.util.Arrays;
 import java.util.List;
@@ -194,8 +196,12 @@ public class BankHelper {
             TimeHelper.sleep(490, 759);
             return false;
         }
-        if(Inventory.contains(item) && Bank.getCount(item) < Inventory.getCount(item)) {
-            Logger.fine("Inventory already contains " + item + " or the bank count is less than inventory count.");
+        if(Inventory.contains(item) && Inventory.isFull() && Definitions.getItem(item, s -> !s.isStackable()) != null) {
+            Logger.fine("Inventory already contains " + item + " or the bank count is less than inventory count. Item is not stackable so we cannot withdraw more.");
+            return true;
+        }
+        if(!BankCache.contains(item) && Definitions.getItem(item, RSItemDefinition::isStackable) != null) {
+            Logger.fine("Bank does not contain: " + item + " and item is stackable.");
             return true;
         }
         Store.setAction("Withdrawing " + item + ".");

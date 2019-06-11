@@ -22,6 +22,7 @@ import org.rspeer.runetek.api.component.tab.Skill;
 import org.rspeer.runetek.api.component.tab.Skills;
 import org.rspeer.runetek.providers.RSItemDefinition;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -270,11 +271,11 @@ public class GrandExchange extends Task {
                 return true;
             }
         }
-        return PlayerHelper.hasAny("Jar generator") || ZanarisHelper.hasRequiredItems();
+        return PlayerHelper.hasAny("Jar generator") || (ZanarisHelper.hasRequiredItems() && ZanarisHelper.hasTeleports());
     }
 
     private ItemPair[] calculateImplingsQuantity() throws IOException {
-        ItemPair[] items = new ItemPair[3];
+        ItemPair[] items = new ItemPair[5];
         RSItemDefinition essenceDef = Definitions.getItem("Essence impling jar", s -> !s.isNoted());
         RSItemDefinition eclecticDef = Definitions.getItem("Eclectic impling jar", s -> !s.isNoted());
         RSItemDefinition natureDef = Definitions.getItem("Nature impling jar", s -> !s.isNoted());
@@ -339,6 +340,14 @@ public class GrandExchange extends Task {
         items[0].setPrice(essencePrice);
         items[1].setPrice(eclecticPrice);
         items[2].setPrice(naturePrice);
+
+        if(!ZanarisHelper.hasTeleports()) {
+            Log.info("Adding varrock teleport to items.");
+            items[3] = new ItemPair("Varrock teleport", 10, 6);
+            Log.info("Adding lumbridge teleport to items.");
+            items[4] = new ItemPair("Lumbridge teleport", 10, 6);
+        }
+
         return items;
     }
 

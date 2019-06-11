@@ -146,7 +146,7 @@ public class GrandExchangePurchaser {
 
     private boolean shouldBuy(ItemPair pair) {
         if (getOffer(pair) != null) {
-            log("Offer exists for" + pair.getName() + ".");
+            log("Offer exists for " + pair.getName() + ".");
             return false;
         }
         int count = PlayerHelper.getTotalCount(pair.getName());

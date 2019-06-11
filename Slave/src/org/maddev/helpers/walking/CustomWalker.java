@@ -3,9 +3,9 @@ package org.maddev.helpers.walking;
 import org.maddev.State;
 import org.maddev.Store;
 import org.maddev.helpers.log.Logger;
+import org.maddev.helpers.time.TimeHelper;
 import org.maddev.web.dax.DaxWeb;
 import org.rspeer.runetek.api.Game;
-import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Magic;
 import org.rspeer.runetek.api.component.tab.Spell;
@@ -17,7 +17,7 @@ import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
-import org.maddev.helpers.log.Logger;
+import org.rspeer.ui.Log;
 
 import java.util.HashSet;
 
@@ -30,11 +30,11 @@ public class CustomWalker implements ChatMessageListener  {
     private static final Position LUMBRIDGE_TILE = new Position(3220, 3218, 0);
     private static boolean shouldWalk;
 
-    public static boolean canUseHomeTeleport() {
+    public boolean canUseHomeTeleport() {
      return timeTillTeleport < System.currentTimeMillis();
     }
 
-    public static boolean isShouldWalk() {
+    public boolean isShouldWalk() {
         return shouldWalk;
     }
 
@@ -156,13 +156,13 @@ public class CustomWalker implements ChatMessageListener  {
     @Override
     public void notify(ChatMessageEvent e) {
         try {
+            Logger.fine("ChatMessageEvent", e.getMessage());
             if (Store.getState() == State.SCRIPT_STOPPED) {
                 Game.getEventDispatcher().deregister(this);
             }
-            if (e.getType() != ChatMessageType.GAME && e.getType() != ChatMessageType.SERVER) {
+            if (e.getType() == ChatMessageType.PUBLIC) {
                 return;
             }
-            Logger.fine(e.getMessage());
             if (e.getMessage().contains("You need to wait another ")) {
                 if(e.getMessage().contains("another minute")) {
                     timeTillTeleport = System.currentTimeMillis() + (60000);

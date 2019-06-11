@@ -42,7 +42,7 @@ public class GrandExchangeHelper {
                 TimeHelper.sleep(850, 1150);
                 return false;
             }
-            if(CustomWalker.canUseHomeTeleport() && !Players.getLocal().isAnimating()) {
+            if(MovementHelper.getInstance().canUseHomeTeleport() && !Players.getLocal().isAnimating()) {
                 log("Casting home teleport.");
                 Magic.cast(Spell.Modern.HOME_TELEPORT);
                 TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), 2500);
@@ -89,8 +89,16 @@ public class GrandExchangeHelper {
     }
 
     public static RSGrandExchangeOffer getBuyOffer(String name) {
+        return getOffer(name, RSGrandExchangeOffer.Type.BUY);
+    }
+
+    public static RSGrandExchangeOffer getSellOffer(String name) {
+        return getOffer(name, RSGrandExchangeOffer.Type.SELL);
+    }
+
+    public static RSGrandExchangeOffer getOffer(String name, RSGrandExchangeOffer.Type type) {
         RSGrandExchangeOffer[] offers = GrandExchange.getOffers(s ->
-                s.getType() == RSGrandExchangeOffer.Type.BUY &&
+                s.getType() == type &&
                         s.getItemDefinition() != null &&
                         s.getItemDefinition().getName().toLowerCase().equals(name.toLowerCase()));
         if (offers.length == 0) {

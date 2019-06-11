@@ -11,7 +11,7 @@ public class MovementHelper {
 
     private static CustomWalker instance;
 
-    private static CustomWalker getInstance() {
+    public static CustomWalker getInstance() {
         if(instance == null) {
             instance = new CustomWalker();
         }

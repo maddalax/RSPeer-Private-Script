@@ -22,11 +22,14 @@ import org.rspeer.runetek.event.types.ItemTableEvent;
 import org.rspeer.runetek.event.types.LoginResponseEvent;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.runetek.providers.subclass.GameCanvas;
-import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;
 import org.rspeer.script.task.TaskScript;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.3)
 public class Main extends TaskScript implements RenderListener, BankLoadListener, ItemTableListener, TaskChangeListener, LoginResponseListener {
@@ -34,6 +37,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
     private StopWatch runtime;
     private ScriptPaint paint;
     public static final Gson gson = new Gson();
+    private ScheduledExecutorService executor;
 
     @Override
     public void onStart() {
@@ -47,6 +51,9 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         runtime = StopWatch.start();
         paint = new ScriptPaint(this);
         submit(new SubmitTasks(this));
+        executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(BankCache::cache
+        , 0, 1, TimeUnit.SECONDS);
     }
 
     private void setupWebSocket() {
@@ -73,6 +80,7 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
             Logger.severe("Script has stopped.");
             PlayerUpdateSender.getInstance().dispose();
             WebSocket.getInstance().dispose();
+            executor.shutdown();
             BankCache.dispose();
             Store.setState(org.maddev.State.SCRIPT_STOPPED);
         } catch (Exception e) {

@@ -6,6 +6,7 @@ import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
 import org.maddev.helpers.player.PlayerHelper;
+import org.maddev.helpers.time.TimeHelper;
 import org.maddev.helpers.walking.MovementHelper;
 import org.maddev.helpers.zanris.ZanarisHelper;
 import org.maddev.tasks.LostCity;
@@ -14,7 +15,6 @@ import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
-import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.InterfaceAddress;
@@ -27,7 +27,6 @@ import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
 import org.rspeer.script.task.Task;
-import org.maddev.helpers.log.Logger;
 
 public class Zanaris extends Task implements ChatMessageListener {
 

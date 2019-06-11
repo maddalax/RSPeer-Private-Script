@@ -30,6 +30,10 @@ public class ZanarisHelper {
                 && PlayerHelper.getTotalCount("Nature impling jar") >= 1;
     }
 
+    public static boolean hasTeleports() {
+        return PlayerHelper.hasAny("Varrock teleport") && PlayerHelper.hasAny("Lumbridge teleport");
+    }
+
     public static boolean inPuroPuro() {
         return PURO_PURO.isLoaded();
     }
