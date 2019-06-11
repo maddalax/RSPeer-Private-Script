@@ -59,10 +59,12 @@ public class ZanarisHelper {
     public static void goToZanaris(boolean useHomeTeleport) {
         Position finish = new Position(3200, 3169, 0);
         if(!finish.isLoaded() || finish.distance() > 10) {
+            Store.setAction("Waiting to shed " + finish);
             MovementHelper.walkRandomized(finish, false, useHomeTeleport);
             TimeHelper.sleep(230, 450);
             return;
         }
+        Logger.fine("Looking for Door to Zanaris.");
         SceneObject door = SceneObjects.getNearest("Door");
         if(door == null) {
             Store.setAction("Failed to find door to Zanaris.");

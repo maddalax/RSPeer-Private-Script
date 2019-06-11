@@ -5,6 +5,7 @@ import org.maddev.Store;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
+import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.time.TimeHelper;
 import org.maddev.helpers.walking.MovementHelper;
@@ -15,6 +16,7 @@ import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.InterfaceAddress;
@@ -27,6 +29,7 @@ import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 public class Zanaris extends Task implements ChatMessageListener {
 
@@ -52,6 +55,12 @@ public class Zanaris extends Task implements ChatMessageListener {
     @Override
     public int execute() {
         int loop = Random.nextInt(350, 550);
+
+        if(BankLocation.GRAND_EXCHANGE.getPosition().isLoaded() && PlayerHelper.hasAny("Lumbridge teleport")) {
+            useLumbridgeTeleport();
+            return loop;
+        }
+
         if(ZanarisHelper.inPuroPuro()) {
             handlePuroPuro();
             return loop;
@@ -71,6 +80,24 @@ public class Zanaris extends Task implements ChatMessageListener {
         }
         getImplingJar();
         return loop;
+    }
+
+    private void useLumbridgeTeleport() {
+        if(!BankHelper.withdraw(BankLocation.GRAND_EXCHANGE, false, "Lumbridge teleport", 1)) {
+            Logger.fine("Attempting to withdraw lumbridge teleport.");
+            return;
+        }
+        Logger.fine("Clicking teleport.");
+        Item tele = Inventory.getFirst("Lumbridge teleport");
+        if(tele == null) {
+            Logger.fine("Failed to find teleport.");
+            return;
+        }
+        if(!Players.getLocal().isAnimating()) {
+            tele.click();
+            Time.sleep(800, 1500);
+            Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
+        }
     }
 
     private void handlePuroPuro() {

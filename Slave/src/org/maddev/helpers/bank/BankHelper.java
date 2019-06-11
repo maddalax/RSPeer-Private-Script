@@ -152,6 +152,7 @@ public class BankHelper {
 
 
     public static boolean withdraw(BankLocation location, boolean useHomeTeleport, String item, int quantity) {
+        Store.setAction("Withdrawing item: " + item);
         return withdraw(location, useHomeTeleport, compare -> compare.getName().equals(item), quantity);
     }
 
