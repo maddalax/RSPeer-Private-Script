@@ -9,6 +9,7 @@ public class Store {
     private static String action;
 
     public static void setAction(String action) {
+        Logger.fine("Action: " + action);
         Store.action = action;
     }
 
@@ -17,10 +18,12 @@ public class Store {
     }
 
     public static void setTask(String task) {
+        Logger.fine("Task: " + task);
         Store.task = task;
     }
 
     public static void setState(State state) {
+        Logger.fine("State: " + state);
         Store.state = state;
     }
 

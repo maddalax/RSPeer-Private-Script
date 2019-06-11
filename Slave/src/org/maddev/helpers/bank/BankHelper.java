@@ -1,6 +1,7 @@
 package org.maddev.helpers.bank;
 
 import org.maddev.Store;
+import org.maddev.helpers.grand_exchange.GrandExchangeHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
 import org.maddev.helpers.log.Logger;
@@ -10,13 +11,12 @@ import org.maddev.helpers.zanris.ZanarisHelper;
 import org.rspeer.runetek.adapter.Interactable;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.BankLocation;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.scene.Npcs;
-import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,14 +34,26 @@ public class BankHelper {
     }
 
     public static boolean open(BankLocation location, boolean useHomeTeleport) {
+        if(Bank.isOpen()) {
+            Logger.fine("Bank is open.");
+            return true;
+        }
         if(location == null) {
+            Logger.fine("Bank location is null, unable to open bank.");
             return false;
         }
         if(ZanarisHelper.inZanaris()) {
+            Logger.fine("Bank location is null, unable to open bank.");
             return ZanarisHelper.openZanarisBank();
         }
+        if(location == BankLocation.GRAND_EXCHANGE && BankLocation.GRAND_EXCHANGE.getPosition().distance() > 10) {
+            Logger.fine("Walking to grand exchange to open bank.");
+            GrandExchangeHelper.walkTo();
+            return false;
+        }
+        Logger.fine("Opening bank " + location.getName() + " at " + location.getPosition());
         if(location == BankLocation.LUMBRIDGE_CASTLE) {
-            Time.sleep(350, 650);
+            TimeHelper.sleep(350, 650);
             return MovementUtil.applyLumbridgeFix();
         }
         Interactable bank = null;
@@ -58,16 +70,18 @@ public class BankHelper {
         }
         if(bank == null) {
             if(location.getPosition().distance() > 10) {
+                Logger.fine("Walking to bank position because bank interactable was not found.");
                 MovementHelper.walkRandomized(location.getPosition(), false, useHomeTeleport);
-                Time.sleep(350, 650);
+                TimeHelper.sleep(350, 650);
                 return false;
             }
             Store.setAction("Failed to find bank.");
             Logger.severe("Failed to find bank.");
             return false;
         }
+        Logger.fine("Interacting with bank interactable.");
         InteractHelper.interact(bank, location.getAction());
-        Time.sleep(350, 650);
+        TimeHelper.sleep(350, 650);
         return Bank.isOpen();
     }
 
@@ -77,6 +91,7 @@ public class BankHelper {
 
     public static boolean withdraw(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
         for (ItemPair item : pair) {
+            Logger.fine("Attempting to withdraw: " + item.getName());
             boolean isAll = item.getQuantity() == Integer.MAX_VALUE;
             if(!(isAll ? withdrawAll(item.getName(), location, useHomeTeleport) : withdraw(item.getName(), item.getQuantity()))) {
                 return false;
@@ -87,10 +102,8 @@ public class BankHelper {
 
     public static boolean withdrawNoted(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
         for (ItemPair item : pair) {
+            Logger.fine("Attempting to withdraw noted: " + item.getName());
             boolean isAll = item.getQuantity() == Integer.MAX_VALUE;
-            if(!Bank.contains(item.getName())) {
-                continue;
-            }
             if(!(isAll ? withdrawAllNoted(item.getName(), location, useHomeTeleport) : withdrawNoted(item.getName(), item.getQuantity(), location, useHomeTeleport))) {
                 return false;
             }
@@ -100,6 +113,7 @@ public class BankHelper {
 
     public static boolean withdrawOnly(BankLocation location, boolean useHomeTeleport, ItemPair ... pair) {
         List<String> names = Arrays.stream(pair).map(ItemPair::getName).collect(Collectors.toList());
+        Logger.fine("Attempting to withdraw only: " + Arrays.toString(names.toArray(new String[0])));
         int size = 0;
         for (ItemPair p : pair) {
             size += p.getQuantity();
@@ -110,15 +124,18 @@ public class BankHelper {
             if(has) count++;
         }
         if(count == size && 28 - Inventory.getFreeSlots() == count) {
+            Logger.fine("Already has only specified items in the inventory.");
             return true;
         }
         if(Bank.isOpen()) {
             if(!Bank.depositAllExcept(s -> names.contains(s.getName()) && !s.isNoted())) {
+                Logger.fine("Depositing all except items to withdraw only, and noted items.");
                 return false;
             }
-            Time.sleep(230, 560);
+            TimeHelper.sleep(230, 560);
         }
         for (ItemPair item : pair) {
+            Logger.fine("Attempting to withdraw " + item.getName() + " from withdraw only.");
             boolean isAll = item.getQuantity() == Integer.MAX_VALUE;
             if(!(isAll ? withdrawAll(item.getName(), location, useHomeTeleport) : withdraw(item.getName(), item.getQuantity()))) {
                 return false;
@@ -142,6 +159,7 @@ public class BankHelper {
 
     public static boolean withdraw(BankLocation location, boolean useHomeTeleport, Predicate<Item> predicate, int quantity) {
         if(Inventory.contains(predicate)) {
+            Logger.fine("Inventory contains item matched by predicate, returning.");
             return true;
         }
         Store.setAction("Withdrawing item via predicate.");
@@ -149,15 +167,18 @@ public class BankHelper {
             open(location, useHomeTeleport);
             return false;
         }
-        if(Inventory.isFull()) {
-            Bank.depositInventory();
-            Time.sleep(490, 759);
-        }
         if(!Bank.contains(predicate)) {
-            return false;
+            Logger.fine("Bank did not contain any items matching the predicate, skipping...");
+            return true;
         }
+        if(Inventory.isFull()) {
+            Logger.fine("Depositing inventory.");
+            Bank.depositInventory();
+            TimeHelper.sleep(490, 759);
+        }
+        Logger.fine("Executing withdraw.");
         Bank.withdraw(predicate, quantity);
-        Time.sleep(490, 759);
+        TimeHelper.sleep(490, 759);
         BankCache.cache();
         return Inventory.contains(predicate);
     }
@@ -168,35 +189,40 @@ public class BankHelper {
 
     public static boolean withdrawAll(String item, BankLocation location, boolean useHomeTeleport) {
         if(Inventory.isFull() && Bank.isOpen()) {
+            Logger.fine("Depositing inventory.");
             Bank.depositInventory();
-            Time.sleep(490, 759);
+            TimeHelper.sleep(490, 759);
             return false;
         }
         if(Inventory.contains(item) && Bank.getCount(item) < Inventory.getCount(item)) {
+            Logger.fine("Inventory already contains " + item + " or the bank count is less than inventory count.");
             return true;
         }
         Store.setAction("Withdrawing " + item + ".");
         if(!Bank.isOpen()) {
+            Logger.fine("Opening bank.");
             open(location, useHomeTeleport);
             return false;
         }
         if(!Bank.contains(item)) {
+            Logger.fine("Bank does not have " + item + ".");
             return false;
         }
-        if(Inventory.isFull()) {
-            Bank.depositInventory();
-            Time.sleep(490, 759);
+        if(!Inventory.isFull()) {
+            Logger.fine("Inventory is not full, executing withdraw: " + item + ".");
+            Bank.withdrawAll(item);
         }
-        Bank.withdrawAll(item);
-        Time.sleep(490, 759);
+        TimeHelper.sleep(490, 759);
         BankCache.cache();
         return Inventory.contains(item);
     }
 
     public static boolean withdrawAllNoted(String item, BankLocation location, boolean useHomeTeleport) {
+        Logger.fine("Withdrawing All Noted: " + item);
         if(Bank.isOpen() && Bank.getWithdrawMode() != Bank.WithdrawMode.NOTE) {
+            Logger.fine("Setting bank mode to noted.");
             Bank.setWithdrawMode(Bank.WithdrawMode.NOTE);
-            Time.sleep(250, 550);
+            TimeHelper.sleep(250, 550);
             return false;
         }
         return withdrawAll(item, location, useHomeTeleport);
@@ -204,8 +230,9 @@ public class BankHelper {
 
     public static boolean withdrawNoted(String item, int quantity, BankLocation location, boolean useHomeTeleport) {
         if(Bank.isOpen() && Bank.getWithdrawMode() != Bank.WithdrawMode.NOTE) {
+            Logger.fine("Setting withraw mode to note.");
             Bank.setWithdrawMode(Bank.WithdrawMode.NOTE);
-            Time.sleep(250, 550);
+            TimeHelper.sleep(250, 550);
             return false;
         }
         return withdraw(location, useHomeTeleport, item, quantity);
@@ -215,11 +242,11 @@ public class BankHelper {
         Store.setAction("Depositing items.");
         if(!Bank.isOpen()) {
             BankHelper.open(location);
-            Time.sleep(450, 850);
+            TimeHelper.sleep(450, 850);
             return false;
         }
         Bank.depositAllExcept(predicate);
-        Time.sleep(450, 850);
+        TimeHelper.sleep(450, 850);
         BankCache.cache();
         return Inventory.containsOnly(predicate);
     }

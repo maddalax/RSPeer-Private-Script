@@ -12,7 +12,7 @@ import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.BankLocation;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.InterfaceAddress;
@@ -94,13 +94,13 @@ public class Crafting extends Task implements AnimationListener {
         InterfaceComponent component = getInterface();
         if (component != null) {
             component.click();
-            Time.sleep(450, 850);
-            Time.sleepUntil(() -> Players.getLocal().isAnimating(), Random.nextInt(1750, 2500));
+            TimeHelper.sleep(450, 850);
+            TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), Random.nextInt(1750, 2500));
             return;
         }
         if (isAnimationDone(Random.nextInt(4000, 4500))) {
             Inventory.use(s -> s.getName().equals("Needle"), Inventory.getFirst("Leather"));
-            Time.sleep(450, 850);
+            TimeHelper.sleep(450, 850);
         }
     }
 
@@ -127,7 +127,7 @@ public class Crafting extends Task implements AnimationListener {
         if (!Inventory.contains(flax) && !isAnimationDone(4000)) {
             //Ran out of flax, but we are still animating, just sleep a little bit so it doesnt look suspicious
             Store.setAction("Idling for a sec.");
-            Time.sleep(500, 15000);
+            TimeHelper.sleep(500, 15000);
         }
         if(!Inventory.contains(flax)) {
             if(!BankHelper.depositAllExcept(BankLocation.LUMBRIDGE_CASTLE, flax)) {
@@ -159,7 +159,7 @@ public class Crafting extends Task implements AnimationListener {
 
                 if (component != null && component.isVisible()) {
                     component.click();
-                    Time.sleepUntil(() -> Players.getLocal().isAnimating(), Random.nextInt(1250, 2200));
+                    TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), Random.nextInt(1250, 2200));
                     return;
                 }
 

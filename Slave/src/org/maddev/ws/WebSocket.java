@@ -53,7 +53,9 @@ public class WebSocket {
     }
 
     public void dispose() {
-        socket.disconnect();
+        if(socket != null) {
+            socket.disconnect();
+        }
         socket = null;
     }
 

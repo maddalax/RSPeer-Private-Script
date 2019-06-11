@@ -6,25 +6,22 @@ import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.crafting.CraftingHelper;
 import org.maddev.helpers.equipment.EquipmentHelper;
-import org.maddev.helpers.grand_exchange.GrandExchangeHelper;
 import org.maddev.helpers.grand_exchange.GrandExchangePurchaser;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.grand_exchange.PriceChecker;
 import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
+import org.maddev.helpers.time.TimeHelper;
 import org.maddev.helpers.zanris.ZanarisHelper;
 import org.rspeer.runetek.api.Definitions;
 import org.rspeer.runetek.api.commons.BankLocation;
-import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.component.tab.Skill;
 import org.rspeer.runetek.api.component.tab.Skills;
-import org.rspeer.runetek.providers.RSGrandExchangeOffer;
 import org.rspeer.runetek.providers.RSItemDefinition;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,29 +33,34 @@ public class GrandExchange extends Task {
     private boolean needsToPurchase() {
         if (Skills.getCurrentLevel(Skill.CRAFTING) < Config.CRAFTING_REQUIRED) {
             if(!hasCraftingSupplies()) {
+                Logger.fine("Need to purchase crafting supplies.");
                 Store.setAction("Getting Crafting Supplies.");
                 return true;
             }
         }
         if (Skills.getCurrentLevel(Skill.WOODCUTTING) < Config.WOODCUTTING_REQUIRED) {
             if(!hasWoodcuttingSupplies()) {
+                Logger.fine("Need to purchase woodcutting supplies.");
                 Store.setAction("Getting Woodcutting Supplies.");
                 return true;
             }
         }
         if (Skills.getCurrentLevel(Skill.HUNTER) < Config.HUNTING_REQUIRED) {
             if(!hasHuntingSupplies()) {
+                Logger.fine("Need to purchase hunting supplies.");
                 Store.setAction("Getting Hunting Supplies.");
                 return true;
             }
         }
         if (LostCity.mayNeedSupplies()) {
             if(!hasLostCitySupplies()) {
+                Logger.fine("Need to purchase lost city supplies.");
                 Store.setAction("Getting Lost City Supplies.");
                 return true;
             }
         }
         if(!ZanarisHelper.inPuroPuro() && !hasImplings()) {
+            Logger.fine("Need to purchase impling supplies.");
             return true;
         }
         return false;
@@ -69,7 +71,7 @@ public class GrandExchange extends Task {
         if(needsToPurchase()) {
             return true;
         }
-        if(Inventory.contains("Coins")) {
+        if(Inventory.contains("Coins") && !needsToPurchase()) {
             return true;
         }
         return false;
@@ -84,18 +86,14 @@ public class GrandExchange extends Task {
             return Random.nextInt(350, 550);
         }
 
-        if (GrandExchangeHelper.walkTo()) {
-            Log.fine("Walking to grand exchange.");
-            return Random.nextInt(350, 550);
-        }
-
         if (!Inventory.contains("Coins") || BankCache.contains("Coins")) {
             if(Inventory.isFull()) {
+                Store.setAction("Depositing inventory.");
                 Bank.depositInventory();
-                Time.sleep(850, 1150);
+                TimeHelper.sleep(850, 1150);
             }
-            Log.fine("Opening bank to get coins.");
-            BankHelper.withdrawAll("Coins");
+            Logger.fine("Opening bank to get coins.");
+            BankHelper.withdrawAll("Coins", BankLocation.GRAND_EXCHANGE, true);
             return Random.nextInt(350, 550);
         }
 
@@ -133,7 +131,8 @@ public class GrandExchange extends Task {
     }
 
     private void depositCoins() {
-        BankHelper.depositAllExcept(BankHelper.nearest(), s -> false);
+        Store.setAction("Depositing coins.");
+        BankHelper.depositAllExcept(BankLocation.GRAND_EXCHANGE, s -> false);
     }
 
 
@@ -146,10 +145,12 @@ public class GrandExchange extends Task {
         int flaxCount = CraftingHelper.getQuantityNeeded(31, CraftingHelper.FLAX_XP);
 
         if (purchaser != null && (!purchaser.hasItem("Leather") && !purchaser.hasItem("Flax"))) {
+            log("Crafting - Clearing Purchaser");
             purchaser = null;
         }
 
         if (purchaser == null) {
+            log("Crafting - Setting Purchaser");
             purchaser = new GrandExchangePurchaser();
             ItemPair leather = new ItemPair("Leather", leatherNeeded, 2);
             ItemPair thread = new ItemPair("Thread", threadCount, 2);
@@ -168,15 +169,17 @@ public class GrandExchange extends Task {
     private boolean getWoodcuttingSupplies() {
         Store.setAction("Purchasing woodcutting supplies.");
         // Clear from crafting purchasing.
-        if (purchaser != null && (purchaser.hasItem("Leather") || purchaser.hasItem("Flax"))) {
+        if (purchaser != null && (!purchaser.hasItem("Iron axe"))) {
+            log("Woodcutting - Clearing Purchaser");
             purchaser = null;
         }
 
         if (purchaser == null) {
+            log("Woodcutting - Setting Purchaser");
             purchaser = new GrandExchangePurchaser(
                     new ItemPair("Iron axe", 1, 5, 1000),
                     new ItemPair("Steel axe", 1, 5, 1000),
-                    new ItemPair("Mithril axe", 1, 10),
+                    new ItemPair("Mithril axe", 1, 20),
                     new ItemPair("Adamant axe", 1, 10));
         }
 
@@ -187,9 +190,11 @@ public class GrandExchange extends Task {
         Store.setAction("Purchasing lost city supplies.");
         // Clear from crafting purchasing.
         if (purchaser != null && !purchaser.hasItem("Mind rune")) {
+            log("LostCity - Clearing Purchaser");
             purchaser = null;
         }
         if (purchaser == null) {
+            log("LostCity - Setting Purchaser");
             purchaser = new GrandExchangePurchaser(
                     new ItemPair("Knife", 1, 5),
                     new ItemPair("Mind rune", 400, 5),
@@ -229,9 +234,11 @@ public class GrandExchange extends Task {
     private boolean getImplings() throws IOException {
         Store.setAction("Getting implings.");
         if (purchaser != null && !purchaser.hasItem("Essence impling")) {
+            log("GetImplings - Clearing Purchaser");
             purchaser = null;
         }
         if(purchaser == null) {
+            log("GetImplings - Setting Purchaser");
             ItemPair[] items = calculateImplingsQuantity();
             purchaser = new GrandExchangePurchaser(
                    items
@@ -257,19 +264,9 @@ public class GrandExchange extends Task {
 
     private boolean hasImplings() {
         if(!LostCity.isComplete()) {
-            RSGrandExchangeOffer essence = GrandExchangeHelper.getBuyOffer("Essence impling jar");
-            RSGrandExchangeOffer eclectic = GrandExchangeHelper.getBuyOffer("Eclectic impling jar");
-            RSGrandExchangeOffer nature = GrandExchangeHelper.getBuyOffer("Nature impling jar");
-            //Waiting on offfer, just complete other tasks since we dont need these yet.
-            if(essence != null && essence.getProgress() != RSGrandExchangeOffer.Progress.FINISHED) {
-                return true;
-            }
-            //Waiting on offfer, just complete other tasks since we dont need these yet.
-            if(eclectic != null && eclectic.getProgress() != RSGrandExchangeOffer.Progress.FINISHED) {
-                return true;
-            }
-            //Waiting on offfer, just complete other tasks since we dont need these yet.
-            if(nature != null && nature.getProgress() != RSGrandExchangeOffer.Progress.FINISHED) {
+            boolean triedToGetAll = PlayerHelper.hasAllIncludeGrandExchange(true,
+                    "Essence impling jar", "Eclectic impling jar", "Nature impling jar");
+            if(triedToGetAll) {
                 return true;
             }
         }
@@ -357,5 +354,9 @@ public class GrandExchange extends Task {
         return PlayerHelper.hasAll("Knife")
                 && PlayerHelper.getTotalCount("Lobster") >= 15
                 && PlayerHelper.hasAny(EquipmentHelper.getChargedGlories());
+    }
+
+    protected void log(String message) {
+        Logger.fine("GrandExchangeTask", message);
     }
 }

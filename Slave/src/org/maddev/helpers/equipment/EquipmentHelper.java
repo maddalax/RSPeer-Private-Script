@@ -1,7 +1,7 @@
 package org.maddev.helpers.equipment;
 
 import org.rspeer.runetek.adapter.component.Item;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.Dialog;
 import org.rspeer.runetek.api.component.tab.Equipment;
 import org.rspeer.runetek.api.component.tab.EquipmentSlot;
@@ -47,7 +47,7 @@ public class EquipmentHelper {
         }
         if (Equipment.contains(neck.getName())) {
             EquipmentSlot.NECK.interact(action);
-            Time.sleep(850, 1450);
+            TimeHelper.sleep(850, 1450);
             return true;
         }
         else {
@@ -57,7 +57,7 @@ public class EquipmentHelper {
             else {
                 Dialog.process(action);
             }
-            Time.sleep(850, 1450);
+            TimeHelper.sleep(850, 1450);
             return true;
         }
     }

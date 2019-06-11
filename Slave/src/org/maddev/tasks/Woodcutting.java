@@ -9,7 +9,7 @@ import org.maddev.helpers.walking.MovementHelper;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.commons.BankLocation;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.component.tab.Skill;
@@ -18,6 +18,7 @@ import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
 import java.util.function.Predicate;
 
@@ -32,8 +33,11 @@ public class Woodcutting extends Task {
 
     @Override
     public int execute() {
+
         Store.setTask("Woodcutting.");
+
         int loop = Random.nextInt(350, 850);
+
         if(!BankHelper.withdrawOnly(BankLocation.DRAYNOR, true,
                 new ItemPair("Iron axe", 1),
                 new ItemPair("Steel axe", 1),
@@ -54,10 +58,11 @@ public class Woodcutting extends Task {
         }
 
         if(Inventory.isFull()) {
+            Log.fine("Dropping all logs.");
             Item[] logs = Inventory.getItems(s -> s.getName().toLowerCase().contains("logs"));
             for (Item log : logs) {
                 log.interact("Drop");
-                Time.sleep(350, 750);
+                TimeHelper.sleep(350, 750);
             }
             return loop;
         }
@@ -73,7 +78,7 @@ public class Woodcutting extends Task {
 
         Store.setAction("Cutting down tree.");
         InteractHelper.interact(tree, "Chop down");
-        Time.sleepUntil(() -> Players.getLocal().isAnimating(), 3500);
+        TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), 3500);
         return loop;
     }
 

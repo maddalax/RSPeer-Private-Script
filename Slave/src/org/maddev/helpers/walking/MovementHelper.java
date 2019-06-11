@@ -1,10 +1,11 @@
 package org.maddev.helpers.walking;
 
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.pathfinding.executor.PathExecutor;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
+import org.maddev.helpers.log.Logger;
 
 public class MovementHelper {
 
@@ -32,10 +33,12 @@ public class MovementHelper {
 
     public static boolean setWalkFlag(Position p) {
         if(Movement.isDestinationSet() && Movement.getDestination().equals(p)) {
+            Logger.fine("Destination equals walk flag position, returning false.");
             return false;
         }
+        Logger.fine("Setting walk flag to " + p + ".");
         Movement.setWalkFlag(p);
-        Time.sleep(650, 1120);
+        TimeHelper.sleep(650, 1120);
         return Players.getLocal().getPosition().equals(p);
     }
 

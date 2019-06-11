@@ -10,7 +10,7 @@ import org.rspeer.runetek.adapter.scene.Player;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.Varps;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Dialog;
 import org.rspeer.runetek.api.component.Interfaces;
@@ -220,7 +220,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
             openQuiz();
         } else {
             MovementHelper.walkRandomized(animal.getDisplay(), false);
-            Time.sleepUntil(() -> me.getPosition().equals(animal.getDisplay()), 4500);
+            TimeHelper.sleepUntil(() -> me.getPosition().equals(animal.getDisplay()), 4500);
         }
     }
 
@@ -228,7 +228,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         SceneObject plaque = SceneObjects.getNearest("Plaque");
         if (plaque != null) {
             plaque.interact("Study");
-            Time.sleepUntil(this::inQuiz, 3000);
+            TimeHelper.sleepUntil(this::inQuiz, 3000);
         }
     }
 
@@ -243,7 +243,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
 
     private void walkToMuseum() {
         MovementHelper.walkRandomized(MUSEUM_AREA.getCenter(), false);
-        Time.sleep(250, 550);
+        TimeHelper.sleep(250, 550);
     }
 
     private void exitBasement() {
@@ -251,11 +251,11 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
         Store.setAction("Exiting basement.");
         if (stairs == null) {
             MovementHelper.walkRandomized(ORLANDO_POSITION, false);
-            Time.sleep(850, 1500);
+            TimeHelper.sleep(850, 1500);
             return;
         }
         InteractHelper.interact(stairs, "Walk-up");
-        Time.sleepUntil(this::inBasement, 2500);
+        TimeHelper.sleepUntil(this::inBasement, 2500);
     }
 
     private void goDownStairs() {
@@ -265,12 +265,12 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
             return;
         }
         InteractHelper.interact(stairs, "Walk-down");
-        Time.sleepUntil(this::inBasement, 2500);
+        TimeHelper.sleepUntil(this::inBasement, 2500);
     }
 
     private void walkToOrlando() {
         MovementHelper.walkRandomized(ORLANDO_POSITION, false);
-        Time.sleep(1200, 2000);
+        TimeHelper.sleep(1200, 2000);
     }
 
     private void talkToOrlando() {
@@ -284,7 +284,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
             return;
         }
         InteractHelper.interact(orlando, "Talk-to");
-        Time.sleepUntil(Dialog::isOpen, 3500);
+        TimeHelper.sleepUntil(Dialog::isOpen, 3500);
     }
 
     private void solve() {
@@ -301,7 +301,7 @@ public class MuseumQuiz extends Task implements ChatMessageListener {
             return;
         }
         clickAnswer();
-        Time.sleepUntil(Dialog::isOpen, 3000);
+        TimeHelper.sleepUntil(Dialog::isOpen, 3000);
     }
 
     private void startQuiz() {

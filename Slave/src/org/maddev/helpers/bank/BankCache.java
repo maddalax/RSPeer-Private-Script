@@ -3,9 +3,9 @@ package org.maddev.helpers.bank;
 import org.maddev.State;
 import org.maddev.Store;
 import org.rspeer.runetek.adapter.component.Item;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.Bank;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,22 +46,23 @@ public class BankCache {
 
     private static void initialize() {
         while (!isCached()) {
-            Log.fine("Attempting to cache bank.");
+            Logger.fine("Caching bank.");
             Store.setAction("Caching bank.");
             if(Store.getState() == State.SCRIPT_STOPPED) {
                 break;
             }
             if(Bank.isOpen()) {
-                if(Bank.getItems().length > 0) {
+                int length = Bank.getItems().length;
+                Logger.fine("Bank items size: " + length);
+                if(length > 0) {
                     cache();
                     break;
                 }
-                Time.sleep(350, 650);
+                TimeHelper.sleep(350, 650);
                 continue;
             }
             BankHelper.open(BankHelper.nearest(), true);
         }
-        Store.setAction("Succesfully cached bank.");
     }
 
     public static Map<String, Integer> getCache() {

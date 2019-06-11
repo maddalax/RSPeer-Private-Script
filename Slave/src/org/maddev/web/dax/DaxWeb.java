@@ -6,11 +6,13 @@ import com.google.gson.JsonObject;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.maddev.helpers.time.TimeHelper;
+import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.path.PredefinedPath;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
 import org.maddev.helpers.log.Logger;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +42,18 @@ public class DaxWeb {
     }
 
     public static PredefinedPath build(Position destination) {
+        int tries = 0;
+        return build(destination, tries);
+    }
+
+    private static PredefinedPath build(Position destination, int tries) {
+        if(tries > 20) {
+            Logger.fine("Failed to build path after 20 tries.");
+            return null;
+        }
+        if(tries > 1) {
+            Logger.fine("Dax Path Building Try: " + tries);
+        }
         JsonObject pathRequest = new JsonObject();
         pathRequest.add("start",new Point3D(Players.getLocal().getPosition()).toJson());
         pathRequest.add("end", new Point3D(destination).toJson());
@@ -58,6 +72,27 @@ public class DaxWeb {
 
             DaxPathResult result = g.fromJson(response.getBody(), DaxPathResult.class);
 
+            if(result.getPathStatus() == DaxPathStatus.BLOCKED) {
+                int attempts = 0;
+                boolean found = false;
+                while (attempts < 1000) {
+                    if(destination.isPositionWalkable()) {
+                        found = true;
+                        break;
+                    }
+                    if(Movement.getDebug().isToggled()) {
+                        Logger.info("Attempting to find walkable tile: " + attempts);
+                    }
+                    destination = destination.randomize(5);
+                    attempts++;
+                }
+                if(found) {
+                    Logger.fine("Found walkable tile at: " + destination);
+                }
+                TimeHelper.sleep(100, 150);
+                return build(destination, tries + 1);
+            }
+
             if(result.getPathStatus() != DaxPathStatus.SUCCESS) {
                 Logger.severe("Failed to generate path with Dax Web. " + result.getPathStatus() + " " + response.getBody());
                 return null;
@@ -72,7 +107,7 @@ public class DaxWeb {
 
         } catch (UnirestException e) {
             e.printStackTrace();
-            Log.severe(e);
+            Logger.severe(e);
         }
 
         return null;

@@ -14,7 +14,7 @@ import org.rspeer.runetek.adapter.scene.Pickable;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.BankLocation;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.component.tab.Skill;
@@ -30,6 +30,7 @@ import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.script.task.Task;
+import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.log.Logger;
 
 import java.awt.*;
@@ -105,19 +106,22 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
                     trap = null;
                 }
                 InteractHelper.interact(snare, "Take");
-                Time.sleep(850, 2250);
+                TimeHelper.sleep(850, 2250);
                 return;
             }
         }
 
         SceneObject active = getActiveSnare();
         if (active != null) {
+            Logger.fine("Trap is active. Idling.");
             if (trap != null) {
                 if (!created.containsKey(trap)) {
                     created.put(trap, System.currentTimeMillis());
                 }
                 long start = created.get(trap);
-                if (System.currentTimeMillis() - start > clearTime) {
+                boolean shouldClear = System.currentTimeMillis() - start > clearTime;
+                Logger.fine("Time since trap placed: " + ((System.currentTimeMillis() - start) / 1000));
+                if (shouldClear) {
                     Store.setAction("Picking up trap.");
                     if (active.interact("Dismantle")) {
                         if (getActiveSnare() == null) {
@@ -139,7 +143,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
             created.remove(trap);
             trap = null;
             InteractHelper.interact(broken, "Dismantle");
-            Time.sleep(350, 650);
+            TimeHelper.sleep(350, 650);
             return;
         }
         SceneObject caught = getCaught();
@@ -148,12 +152,14 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
             created.remove(trap);
             trap = null;
             InteractHelper.interact(caught, "Check");
-            Time.sleep(350, 650);
+            TimeHelper.sleep(350, 650);
             return;
         }
         if (!Players.getLocal().isAnimating()) {
             placeTrap();
+            return;
         }
+        Logger.fine("No broken or caught traps, idling.");
     }
 
     private boolean getSupplies() {
@@ -179,7 +185,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
 
         if (!Players.getLocal().isAnimating()) {
             EquipmentHelper.teleportNecklace(false, "Barbarian Outpost");
-            Time.sleep(850, 1500);
+            TimeHelper.sleep(850, 1500);
         }
 
         return false;
@@ -199,7 +205,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
                 Logger.fine("Could not walk. Resetting.");
                 trap = null;
             }
-            Time.sleep(800, 1800);
+            TimeHelper.sleep(800, 1800);
             return;
         }
         Item snare = Inventory.getFirst("Bird snare");
@@ -208,8 +214,8 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
             return;
         }
         InteractHelper.interact(snare, "Lay");
-        Time.sleep(1200, 2200);
-        Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
+        TimeHelper.sleep(1200, 2200);
+        TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
     }
 
     private SceneObject getActiveSnare() {
@@ -225,7 +231,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         for (Item item : Inventory.getItems(s -> s.getName().
                 equals("Raw bird meat") || s.getName().equals("Bones"))) {
             item.interact("Drop");
-            Time.sleep(230, 450);
+            TimeHelper.sleep(230, 450);
         }
     }
 
@@ -252,12 +258,12 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
         Item glory = EquipmentHelper.getChargedGlory();
         if(glory != null) {
             if(EquipmentHelper.teleportNecklace(true, "Draynor Village")) {
-                Time.sleep(1500, 2500);
+                TimeHelper.sleep(1500, 2500);
                 return;
             }
         }
         MovementHelper.walkRandomized(BankLocation.DRAYNOR.getPosition(), false, true);
-        Time.sleep(350, 650);
+        TimeHelper.sleep(350, 650);
     }
 
     @Override
@@ -292,7 +298,7 @@ public class Hunting extends Task implements RenderListener, ChatMessageListener
                 SceneObject snare = SceneObjects.getNearest("Bird snare");
                 if (snare != null && snare.containsAction("Dismantle")) {
                     InteractHelper.interact(snare, "Dismantle");
-                    Time.sleep(800, 1600);
+                    TimeHelper.sleep(800, 1600);
                 }
             }).start();
         }

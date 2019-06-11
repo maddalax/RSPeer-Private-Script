@@ -5,7 +5,8 @@ import org.maddev.Store;
 import org.maddev.helpers.log.Logger;
 import org.maddev.web.dax.DaxWeb;
 import org.rspeer.runetek.api.Game;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
+import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Magic;
 import org.rspeer.runetek.api.component.tab.Spell;
 import org.rspeer.runetek.api.movement.Movement;
@@ -16,6 +17,7 @@ import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
+import org.maddev.helpers.log.Logger;
 
 import java.util.HashSet;
 
@@ -66,15 +68,16 @@ public class CustomWalker implements ChatMessageListener  {
 
     public boolean walkRandomized(Position p, boolean acceptEndBlocked, boolean useHomeTeleport) {
         if(useHomeTeleport && canUseHomeTeleport()) {
-            if(!useHomeTeleport(p)) {
-                return false;
-            }
+            useHomeTeleport(p);
         }
         PathExecutor.getPathExecutorSupplier().get().setRandomizeAll(true);
         return walk(p, acceptEndBlocked);
     }
 
     public boolean walk(Position p, boolean acceptEndBlocked) {
+        if(!shouldWalk()) {
+            return false;
+        }
         boolean usedDaxWeb = false;
         if(Players.getLocal().getPosition().getFloorLevel() == p.getFloorLevel()) {
             Path bPath = DaxWeb.build(p);
@@ -84,6 +87,7 @@ public class CustomWalker implements ChatMessageListener  {
             }
         }
         if(!usedDaxWeb) {
+            log("Dax path failed, using regular web.");
             currentPath = Movement.buildPath(p);
         }
         CustomWalker.shouldWalk = shouldWalk();
@@ -95,39 +99,58 @@ public class CustomWalker implements ChatMessageListener  {
     }
 
     private boolean shouldWalk() {
+        if(Players.getLocal().isAnimating()) {
+            log("We are animating, should not move.");
+            return false;
+        }
         if(!Players.getLocal().isMoving()) {
+            log("Not moving, we can walk.");
             return true;
         }
         if(Movement.isDestinationSet() && !Movement.isWalkable(Movement.getDestination(), false)) {
+            log("Current destination is not walkable, we can walk.");
             return true;
         }
-       return !Movement.isDestinationSet() || Movement.getDestinationDistance() < 6;
-    }
-
-    public boolean isWalkingCustomPath(CustomPath path) {
-        if(path != null && !path.didWalkToStart() && path.startPosition() != null) {
+        boolean set = Movement.isDestinationSet();
+        if(!set) {
+            log("Destination is not set. We can walk.");
             return true;
         }
-        return path != null && path.getPath() != null
-                && path.getPath().getCurrent() != null;
+        int threshold = Random.nextInt(2, 7);
+        boolean distance = Movement.getDestinationDistance() < threshold;
+        if(distance) {
+            log("Distance is less than " + threshold + " . We can walk.");
+            return true;
+        }
+        log("We cannot walk right now. " + " Is Moving: " + Players.getLocal().isMoving());
+        return false;
     }
 
-    private boolean useHomeTeleport(Position dest) {
+    private void useHomeTeleport(Position dest) {
+        log("Checking home teleport.");
         if(Players.getLocal().isAnimating()) {
-            return false;
+            log("Currently animating, skipping home teleport.");
+            return;
         }
         if(dest.distance() < 150) {
-            return true;
+            log("Distance is less than 150, no need for home teleport.");
+            return;
         }
-        if(dest.getFloorLevel() == 0 && LUMBRIDGE_TILE.distance() > dest.distance()) {
-            return true;
+        if(LUMBRIDGE_TILE.distance() < dest.distance()) {
+            log("Destination is farther than lumby tile, teleporting.");
+            return;
         }
         if(Magic.canCast(Spell.Modern.HOME_TELEPORT)) {
+            log("Can not cast home teleport.");
             Magic.cast(Spell.Modern.HOME_TELEPORT);
-            Time.sleepUntil(() -> Players.getLocal().isAnimating(), 3500);
-            return false;
+            TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), 3500);
+            return;
         }
-        return true;
+        return;
+    }
+
+    private void log(String message) {
+        Logger.fine("Movement", message);
     }
 
     @Override

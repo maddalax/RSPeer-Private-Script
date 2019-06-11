@@ -2,7 +2,6 @@ package org.maddev.tasks.zanaris;
 
 import org.maddev.State;
 import org.maddev.Store;
-import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.grand_exchange.ItemPair;
 import org.maddev.helpers.interact.InteractHelper;
@@ -15,8 +14,7 @@ import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
-import org.rspeer.runetek.api.commons.BankLocation;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.InterfaceAddress;
 import org.rspeer.runetek.api.component.Interfaces;
@@ -28,7 +26,7 @@ import org.rspeer.runetek.event.listeners.ChatMessageListener;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ChatMessageType;
 import org.rspeer.script.task.Task;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 public class Zanaris extends Task implements ChatMessageListener {
 
@@ -85,7 +83,7 @@ public class Zanaris extends Task implements ChatMessageListener {
             }
             Store.setAction("Clicking Jar Generator.");
             generator.click();
-            Time.sleep(1500, 3500);
+            TimeHelper.sleep(1500, 3500);
             InterfaceComponent ok = Interfaces.getComponent(540, 126);
             if(ok == null) {
                 Store.setAction("Failed to find ok interface.");
@@ -93,7 +91,7 @@ public class Zanaris extends Task implements ChatMessageListener {
             }
             Store.setAction("Clicking Confirm.");
             ok.click();
-            Time.sleep(1500, 4500);
+            TimeHelper.sleep(1500, 4500);
             return;
         }
         if(!Inventory.contains("Jar generator")) {
@@ -103,7 +101,7 @@ public class Zanaris extends Task implements ChatMessageListener {
                 return;
             }
             InteractHelper.interact(elnok, "Trade");
-            Time.sleep(850, 1220);
+            TimeHelper.sleep(850, 1220);
             return;
         }
         Store.setAction("Exiting portal.");
@@ -114,14 +112,14 @@ public class Zanaris extends Task implements ChatMessageListener {
                 return;
             }
             InteractHelper.interact(portal, "Escape");
-            Time.sleep(850, 1220);
+            TimeHelper.sleep(850, 1220);
         }
     }
 
     private void handleImplingJar() {
         if(ZanarisHelper.BANK.distance() > 5) {
             MovementHelper.setWalkFlag(ZanarisHelper.BANK);
-            Time.sleep(850, 1000);
+            TimeHelper.sleep(850, 1000);
             return;
         }
         if(Inventory.isFull()) {
@@ -143,7 +141,7 @@ public class Zanaris extends Task implements ChatMessageListener {
         if(!Players.getLocal().isAnimating()) {
             i.interact(action);
         }
-        Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
+        TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
     }
 
     private void getImplingJar() {
@@ -163,7 +161,7 @@ public class Zanaris extends Task implements ChatMessageListener {
         }
         Store.setAction("Interacting with circle.");
         if(InteractHelper.interact(circle, "Enter")) {
-            Time.sleepUntil(() -> Players.getLocal().isAnimating(), 2500);
+            TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), 2500);
         }
     }
 
@@ -172,7 +170,6 @@ public class Zanaris extends Task implements ChatMessageListener {
         if(Store.getState() == State.SCRIPT_STOPPED) {
             Game.getEventDispatcher().deregister(this);
         }
-        Log.fine(e.getType() + " " + e.getMessage());
         if(e.getType() == ChatMessageType.PUBLIC || !e.getMessage().contains("charges left in your jar generator")) {
             return;
         }

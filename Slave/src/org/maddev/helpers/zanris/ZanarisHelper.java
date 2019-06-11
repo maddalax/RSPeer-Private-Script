@@ -6,7 +6,7 @@ import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.walking.MovementHelper;
 import org.rspeer.runetek.adapter.scene.SceneObject;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Position;
@@ -43,12 +43,12 @@ public class ZanarisHelper {
         if(!BANK.isLoaded()) {
             Logger.fine("Bank is not loaded, walking to puro puro pen.");
             MovementHelper.setWalkFlag(HALF_WAY_BANK.isLoaded() ? HALF_WAY_BANK : PURO_PURO_PEN);
-            Time.sleep(450, 850);
+            TimeHelper.sleep(450, 850);
             return false;
         }
         Logger.fine("Setting walk flag to bank.");
         Movement.setWalkFlag(BANK.randomize(1));
-        Time.sleep(450, 850);
+        TimeHelper.sleep(450, 850);
         return Bank.isOpen();
     }
 
@@ -56,7 +56,7 @@ public class ZanarisHelper {
         Position finish = new Position(3200, 3169, 0);
         if(!finish.isLoaded() || finish.distance() > 10) {
             MovementHelper.walkRandomized(finish, false, useHomeTeleport);
-            Time.sleep(230, 450);
+            TimeHelper.sleep(230, 450);
             return;
         }
         SceneObject door = SceneObjects.getNearest("Door");
@@ -65,7 +65,7 @@ public class ZanarisHelper {
             return;
         }
         InteractHelper.interact(door, "Open");
-        Time.sleep(350, 850);
+        TimeHelper.sleep(350, 850);
     }
 
 }

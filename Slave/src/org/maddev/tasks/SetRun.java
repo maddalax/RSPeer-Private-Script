@@ -1,6 +1,6 @@
 package org.maddev.tasks;
 
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.scene.Players;
@@ -23,7 +23,7 @@ public class SetRun extends Task {
         if(Movement.toggleRun(true)) {
             threshold = Random.nextInt(45, 65);
         }
-        Time.sleepUntil(Movement::isRunEnabled, 1000);
+        TimeHelper.sleepUntil(Movement::isRunEnabled, 1000);
         return Random.nextInt(250, 450);
     }
 }

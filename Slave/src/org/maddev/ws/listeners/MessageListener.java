@@ -9,7 +9,7 @@ import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.event.listeners.RenderListener;
 import org.rspeer.runetek.event.types.RenderEvent;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -59,7 +59,7 @@ public class MessageListener implements RenderListener  {
                 ex.printStackTrace();
             }
             byte [] data = bos.toByteArray();
-            Log.fine("Size: " + data.length);
+            Logger.fine("Size: " + data.length);
             JsonObject o = new JsonObject();
             o.addProperty("rsn", Players.getLocal().getName());
             o.addProperty("data", Base64.getEncoder().encodeToString(data));

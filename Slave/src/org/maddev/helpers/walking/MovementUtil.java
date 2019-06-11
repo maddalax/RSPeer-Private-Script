@@ -3,18 +3,18 @@ package org.maddev.helpers.walking;
 import org.maddev.Store;
 import org.maddev.helpers.interact.InteractHelper;
 import org.rspeer.runetek.adapter.scene.SceneObject;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
-import org.rspeer.ui.Log;
+import org.maddev.helpers.log.Logger;
 
 public class MovementUtil {
 
     public static boolean applyLumbridgeFix() {
-        Log.fine("Applying lumbridge fix.");
+        Logger.fine("Applying lumbridge fix.");
         if(Players.getLocal().getPosition().getFloorLevel() == 0) {
             SceneObject stairs = SceneObjects.getFirstAt(new Position(3204, 3229));
             if (stairs == null || stairs.distance() > 10) {
@@ -46,7 +46,7 @@ public class MovementUtil {
                 return false;
             }
             InteractHelper.interact(booth, "Bank");
-            Time.sleep(100, 250);
+            TimeHelper.sleep(100, 250);
         }
         return Bank.isOpen();
     }

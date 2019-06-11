@@ -22,12 +22,13 @@ import org.rspeer.runetek.event.types.ItemTableEvent;
 import org.rspeer.runetek.event.types.LoginResponseEvent;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.runetek.providers.subclass.GameCanvas;
+import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;
 import org.rspeer.script.task.TaskScript;
 
-@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.2)
+@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.3)
 public class Main extends TaskScript implements RenderListener, BankLoadListener, ItemTableListener, TaskChangeListener, LoginResponseListener {
 
     private StopWatch runtime;
@@ -40,7 +41,8 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         setupWebSocket();
         GameCanvas.setInputEnabled(true);
 
-        DaxWeb.initialize("sub_DPjcfqN4YkIxm8", "PUBLIC-KEY");
+        //setAccount(new GameAccount("mental336@mailboxhub.de", "topnotch271"));
+        DaxWeb.initialize("sub_FCt2YD8MiHPMRh", "8710d5e0-9ea4-4fef-aa9c-41c52f88b01b");
 
         runtime = StopWatch.start();
         paint = new ScriptPaint(this);
@@ -48,7 +50,6 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
     }
 
     private void setupWebSocket() {
-
         try {
             WebSocket.getInstance().connect();
         } catch (Exception e) {
@@ -67,12 +68,16 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
 
     @Override
     public void onStop() {
-        Logger.severe("Script has stopped.");
-        PlayerUpdateSender.getInstance().dispose();
-        WebSocket.getInstance().dispose();
-        BankCache.dispose();
-        Store.setState(org.maddev.State.SCRIPT_STOPPED);
         super.onStop();
+        try {
+            Logger.severe("Script has stopped.");
+            PlayerUpdateSender.getInstance().dispose();
+            WebSocket.getInstance().dispose();
+            BankCache.dispose();
+            Store.setState(org.maddev.State.SCRIPT_STOPPED);
+        } catch (Exception e) {
+            Logger.severe(e);
+        }
     }
 
     @Override

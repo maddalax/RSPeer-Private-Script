@@ -7,10 +7,10 @@
     </content>
     <orderEntry type="jdk" jdkName="11" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.rspeer/1.78.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../../RSPeer-Client/rspeer-client/target/rspeer-client-1.0-jar-with-dependencies-obb.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

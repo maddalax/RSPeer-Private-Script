@@ -4,11 +4,12 @@ import org.maddev.Store;
 import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
 import org.rspeer.runetek.adapter.component.Item;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.GrandExchangeSetup;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
+import org.maddev.helpers.log.Logger;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,7 +32,7 @@ public class GrandExchangeSeller {
         pairs.clear();
     }
 
-    public boolean hasItem(String name) {
+    private boolean hasItem(String name) {
         for (ItemPair pair : pairs) {
             if (pair.getName().equals(name)) {
                 return true;
@@ -41,21 +42,23 @@ public class GrandExchangeSeller {
     }
 
     private boolean sell(ItemPair pair) {
+
         if (!GrandExchangeHelper.open()) {
+            log("Grand Exchange open returned false, not selling " + pair.getName() + " yet.");
             return false;
         }
 
         if (!GrandExchangeSetup.isOpen()) {
-            Logger.fine("Attempting to create offer.");
+            log("Attempting to create offer for " + pair.getName() + ".");
             GrandExchange.createOffer(RSGrandExchangeOffer.Type.SELL);
-            Time.sleep(500, 1000);
+            TimeHelper.sleep(500, 1000);
             return false;
         }
 
         Store.setAction("Creating offer for " + pair.getName());
 
         if (GrandExchangeSetup.getItem() == null) {
-            Logger.fine("Attempting to create offer.");
+            log("Attempting to create offer for" + pair.getName());
             GrandExchangeSetup.setItem(pair.getName());
             return false;
         }
@@ -67,23 +70,24 @@ public class GrandExchangeSeller {
         if (pair.getPrice() != 0) {
 
             if (GrandExchangeSetup.getPricePerItem() != pair.getPrice()) {
-                Store.setAction("Setting price to " + pair.getPrice() + ".");
+                Store.setAction("Setting price to " + pair.getPrice() + " for " + pair.getName() + ".");
                 GrandExchangeSetup.setPrice(pair.getPrice());
-                Time.sleep(100, 200);
+                TimeHelper.sleep(100, 200);
                 return false;
             }
 
         } else {
 
-            Store.setAction("Attempting to decrease price.");
+            Store.setAction("Attempting to decrease price for " + pair.getName() + ".");
             GrandExchangeSetup.decreasePrice(pair.getIncreasePriceTimes());
         }
 
-        Time.sleep(1500, 2500);
+        TimeHelper.sleep(1500, 2500);
 
+        log("Confirming offer.");
         GrandExchangeSetup.confirm();
 
-        Time.sleep(500, 1000);
+        TimeHelper.sleep(500, 1000);
 
         return getOffer(pair) != null;
     }
@@ -100,40 +104,54 @@ public class GrandExchangeSeller {
     }
 
     public boolean sell() {
+        log("Executing Grand Exchange Seller");
         collect();
         int purchaseCount = 0;
         for (ItemPair pair : pairs) {
             if (!shouldSell(pair)) {
+                log("Should not sell: " + pair.getName());
                 purchaseCount++;
                 continue;
             }
             if (!sell(pair)) {
-                Time.sleep(1000, 1800);
+                log("Sell is not completed yet for " + pair.getName());
+                TimeHelper.sleep(1000, 1800);
                 break;
-            } else {
-                pairs.remove(pair);
             }
-            Time.sleep(1500, 2500);
+            TimeHelper.sleep(1500, 2500);
         }
         return purchaseCount == pairs.size();
     }
 
     private boolean shouldSell(ItemPair pair) {
         if (getOffer(pair) != null) {
+            log("Offer already exists for" + pair.getName());
             return false;
         }
-        return Inventory.contains(pair.getName());
+        boolean contains = Inventory.contains(pair.getName());
+        if(!contains) {
+            log("Inventory does not contain " + pair.getName() + ".");
+        }
+        return contains;
     }
 
-    private boolean collect() {
+    private void collect() {
         if (GrandExchange.getOffers(s -> s.getProgress() == RSGrandExchangeOffer.Progress.FINISHED).length == 0) {
-            return false;
+            log("No offers finished, can not collect.");
+            return;
         }
         if (!GrandExchange.isOpen()) {
+            log("Grand Exchange not open, can not collect.");
             GrandExchangeHelper.open();
-            return false;
+            return;
         }
-        return GrandExchange.collectAll();
+        log("Collecting all offers.");
+        GrandExchange.collectAll();
+        TimeHelper.sleep(450, 850);
+    }
+
+    private void log(String message) {
+        Logger.fine("GrandExchangeSeller", message);
     }
 
 }

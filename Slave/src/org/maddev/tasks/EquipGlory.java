@@ -5,7 +5,7 @@ import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.equipment.EquipmentHelper;
 import org.maddev.helpers.player.PlayerHelper;
 import org.rspeer.runetek.adapter.component.Item;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.GrandExchange;
@@ -32,22 +32,22 @@ public class EquipGlory extends Task {
         Store.setTask("Equipping amulet glory.");
         if(GrandExchange.isOpen()) {
             Bank.open();
-            Time.sleep(450, 850);
+            TimeHelper.sleep(450, 850);
         }
         if(Bank.isOpen()) {
             Bank.close();
-            Time.sleep(450, 850);
+            TimeHelper.sleep(450, 850);
         }
         Item exists = EquipmentHelper.getChargedGlory();
         if(exists == null) {
             for (String glory : EquipmentHelper.getChargedGlories()) {
                 BankHelper.withdraw(glory, 1);
-                Time.sleep(850, 1550);
+                TimeHelper.sleep(850, 1550);
             }
         }
         else {
             exists.interact("Wear");
-            Time.sleep(800, 1100);
+            TimeHelper.sleep(800, 1100);
         }
         return Random.nextInt(350, 850);
     }

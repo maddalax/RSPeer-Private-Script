@@ -3,7 +3,7 @@ package org.maddev.helpers.grand_exchange;
 import org.maddev.Store;
 import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
-import org.rspeer.runetek.api.commons.Time;
+import org.maddev.helpers.time.TimeHelper;
 import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.GrandExchangeSetup;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
@@ -39,30 +39,32 @@ public class GrandExchangePurchaser {
     }
 
     private boolean purchase(ItemPair pair) {
+
         if (!GrandExchangeHelper.open()) {
+            Store.setAction("Opening Grand Exchange.");
             return false;
         }
 
         Store.setAction("Creating offer for " + pair.getName());
 
         if (!GrandExchangeSetup.isOpen()) {
-            Logger.fine("Attempting to create offer.");
+            log("Attempting to create offer for " + pair.getName());
             GrandExchange.createOffer(RSGrandExchangeOffer.Type.BUY);
-            Time.sleep(500, 1000);
+            TimeHelper.sleep(500, 1000);
             return false;
         }
 
         if (GrandExchangeSetup.getItem() == null) {
             Store.setAction("Attempting to set item -> " + pair.getName());
             GrandExchangeSetup.setItem(pair.getName());
-            Time.sleep(500, 1000);
+            TimeHelper.sleep(500, 1000);
             return false;
         }
 
         if (!GrandExchangeSetup.getItem().getName().equals(pair.getName())) {
-            Store.setAction("Attempting to set item " + pair.getName());
+            Store.setAction("Attempting to set item -> " + pair.getName());
             GrandExchangeSetup.setItem(pair.getName());
-            Time.sleep(500, 1000);
+            TimeHelper.sleep(500, 1000);
             return false;
         }
 
@@ -71,7 +73,7 @@ public class GrandExchangePurchaser {
         if (GrandExchangeSetup.getQuantity() != quantity) {
             Store.setAction("Setting quantity to " + quantity + ".");
             GrandExchangeSetup.setQuantity(quantity);
-            Time.sleep(500, 1000);
+            TimeHelper.sleep(500, 1000);
             return false;
         }
 
@@ -84,7 +86,7 @@ public class GrandExchangePurchaser {
             if (GrandExchangeSetup.getPricePerItem() != pair.getPrice()) {
                 Store.setAction("Setting price to " + pair.getPrice() + ".");
                 GrandExchangeSetup.setPrice(pair.getPrice());
-                Time.sleep(100, 200);
+                TimeHelper.sleep(100, 200);
                 return false;
             }
 
@@ -93,7 +95,7 @@ public class GrandExchangePurchaser {
             if (pair.getPriceMinimum() != 0 && GrandExchangeSetup.getPricePerItem() < pair.getPriceMinimum()) {
                 Store.setAction("Setting price.");
                 GrandExchangeSetup.setPrice(pair.getPriceMinimum());
-                Time.sleep(100, 200);
+                TimeHelper.sleep(100, 200);
                 return false;
             } else {
                 Store.setAction("Attempting to increase price.");
@@ -101,11 +103,12 @@ public class GrandExchangePurchaser {
             }
         }
 
-        Time.sleep(1500, 2500);
+        TimeHelper.sleep(1500, 2500);
 
+        log("Confirming offer.");
         GrandExchangeSetup.confirm();
 
-        Time.sleep(500, 1000);
+        TimeHelper.sleep(500, 1000);
 
         return getOffer(pair) != null;
     }
@@ -122,41 +125,53 @@ public class GrandExchangePurchaser {
     }
 
     public boolean purchase() {
+        log("Executing Grand Exchange Buyer");
         collect();
         int purchaseCount = 0;
         for (ItemPair pair : pairs) {
             if (!shouldBuy(pair)) {
+                log("Should not buy: " + pair.getName());
                 purchaseCount++;
                 continue;
             }
             if (!purchase(pair)) {
-                Time.sleep(1000, 1800);
+                log("Purchase is not completed yet for " + pair.getName());
+                TimeHelper.sleep(1000, 1800);
                 break;
-            } else {
-                pairs.remove(pair);
             }
-            Time.sleep(1500, 2500);
+            TimeHelper.sleep(1500, 2500);
         }
         return purchaseCount == pairs.size();
     }
 
     private boolean shouldBuy(ItemPair pair) {
         if (getOffer(pair) != null) {
+            log("Offer exists for" + pair.getName() + ".");
             return false;
         }
         int count = PlayerHelper.getTotalCount(pair.getName());
-        return count < pair.getQuantity();
+        boolean quantity = count < pair.getQuantity();
+        log("Count for " + pair.getName() + " is less than specified quantity: " + quantity);
+        return quantity;
     }
 
-    private boolean collect() {
+    private void collect() {
         if (GrandExchange.getOffers(s -> s.getProgress() == RSGrandExchangeOffer.Progress.FINISHED).length == 0) {
-            return false;
+            log("No offers finished, can not collect.");
+            return;
         }
         if (!GrandExchange.isOpen()) {
+            log("Grand Exchange not open, can not collect.");
             GrandExchangeHelper.open();
-            return false;
+            return;
         }
-        return GrandExchange.collectAll();
+        log("Collecting all offers.");
+        GrandExchange.collectAll();
+        TimeHelper.sleep(450, 850);
+    }
+
+    private void log(String message) {
+        Logger.fine("Grand Exchange Buyer: " + message);
     }
 
 }
