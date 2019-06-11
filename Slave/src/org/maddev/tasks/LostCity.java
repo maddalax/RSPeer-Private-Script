@@ -321,6 +321,11 @@ public class LostCity extends Task implements RenderListener, TaskChangeListener
         Store.setAction("Looking for Shamus.");
         if (shamus == null) {
             Position treePosition = new Position(3139, 3211, 0);
+            if(treePosition.distance() > 5) {
+                Logger.fine("Walking closer to lost city tree.");
+                MovementHelper.walkRandomized(treePosition, false);
+                return;
+            }
             SceneObject tree = SceneObjects.getNearest(s -> s.getName().equals("Tree") && s.containsAction("Chop") && treePosition.distance(s.getPosition()) < 10);
             Logger.fine("Looking for tree to chop down.");
             if (tree == null) {
