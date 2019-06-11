@@ -15,6 +15,7 @@ import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.Game;
 import org.maddev.helpers.time.TimeHelper;
+import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.InterfaceAddress;
 import org.rspeer.runetek.api.component.Interfaces;
@@ -138,10 +139,8 @@ public class Zanaris extends Task implements ChatMessageListener {
             Store.setAction("Failed to get jar generator?");
             return;
         }
-        if(!Players.getLocal().isAnimating()) {
-            i.interact(action);
-        }
-        TimeHelper.sleepUntil(() -> Players.getLocal().isAnimating(), 2000);
+        i.interact(action);
+        Time.sleep(300, 450);
     }
 
     private void getImplingJar() {
