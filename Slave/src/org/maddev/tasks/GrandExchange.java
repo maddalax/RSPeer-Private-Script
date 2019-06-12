@@ -33,34 +33,34 @@ public class GrandExchange extends Task {
 
     private boolean needsToPurchase() {
         if (Skills.getCurrentLevel(Skill.CRAFTING) < Config.CRAFTING_REQUIRED) {
-            if(!hasCraftingSupplies()) {
+            if (!hasCraftingSupplies()) {
                 Logger.fine("Need to purchase crafting supplies.");
                 Store.setAction("Getting Crafting Supplies.");
                 return true;
             }
         }
         if (Skills.getCurrentLevel(Skill.WOODCUTTING) < Config.WOODCUTTING_REQUIRED) {
-            if(!hasWoodcuttingSupplies()) {
+            if (!hasWoodcuttingSupplies()) {
                 Logger.fine("Need to purchase woodcutting supplies.");
                 Store.setAction("Getting Woodcutting Supplies.");
                 return true;
             }
         }
         if (Skills.getCurrentLevel(Skill.HUNTER) < Config.HUNTING_REQUIRED) {
-            if(!hasHuntingSupplies()) {
+            if (!hasHuntingSupplies()) {
                 Logger.fine("Need to purchase hunting supplies.");
                 Store.setAction("Getting Hunting Supplies.");
                 return true;
             }
         }
         if (LostCity.mayNeedSupplies()) {
-            if(!hasLostCitySupplies()) {
+            if (!hasLostCitySupplies()) {
                 Logger.fine("Need to purchase lost city supplies.");
                 Store.setAction("Getting Lost City Supplies.");
                 return true;
             }
         }
-        if(!ZanarisHelper.inPuroPuro() && !hasImplings()) {
+        if (!ZanarisHelper.inPuroPuro() && !hasImplings()) {
             Logger.fine("Need to purchase impling supplies.");
             return true;
         }
@@ -69,10 +69,10 @@ public class GrandExchange extends Task {
 
     @Override
     public boolean validate() {
-        if(needsToPurchase()) {
+        if (needsToPurchase()) {
             return true;
         }
-        if(Inventory.contains("Coins") && !needsToPurchase()) {
+        if (Inventory.contains("Coins") && !needsToPurchase()) {
             return true;
         }
         return false;
@@ -82,13 +82,13 @@ public class GrandExchange extends Task {
     public int execute() {
         Store.setTask("Grand Exchange");
 
-        if(Inventory.contains("Coins") && !needsToPurchase()) {
+        if (Inventory.contains("Coins") && !needsToPurchase()) {
             depositCoins();
             return Random.nextInt(350, 550);
         }
 
         if (!Inventory.contains("Coins") || BankCache.contains("Coins")) {
-            if(Inventory.isFull()) {
+            if (Inventory.isFull()) {
                 Store.setAction("Depositing inventory.");
                 Bank.depositInventory();
                 TimeHelper.sleep(850, 1150);
@@ -118,7 +118,7 @@ public class GrandExchange extends Task {
             return Random.nextInt(350, 550);
         }
 
-        if(!hasImplings()) {
+        if (!hasImplings()) {
             try {
                 getImplings();
             } catch (IOException e) {
@@ -157,7 +157,7 @@ public class GrandExchange extends Task {
             ItemPair thread = new ItemPair("Thread", threadCount, 2);
             ItemPair needle = new ItemPair("Needle", 1, 10);
             ItemPair flax = new ItemPair("Flax", flaxCount, 2);
-            if(Skills.getCurrentLevel(Skill.CRAFTING) < 10) {
+            if (Skills.getCurrentLevel(Skill.CRAFTING) < 10) {
                 purchaser.addItem(leather);
                 purchaser.addItem(thread);
                 purchaser.addItem(needle);
@@ -220,7 +220,7 @@ public class GrandExchange extends Task {
             purchaser = null;
         }
 
-        if(purchaser == null) {
+        if (purchaser == null) {
             purchaser = new GrandExchangePurchaser(
                     new ItemPair("Bird snare", 3, 20)
             );
@@ -234,15 +234,15 @@ public class GrandExchange extends Task {
 
     private boolean getImplings() throws IOException {
         Store.setAction("Getting implings.");
-        if (purchaser != null && !purchaser.hasItem("Essence impling")) {
+        if (purchaser != null && !purchaser.hasItem("Essence impling") && !purchaser.hasItem("Eclectic impling jar") && !purchaser.hasItem("Nature impling jar")) {
             log("GetImplings - Clearing Purchaser");
             purchaser = null;
         }
-        if(purchaser == null) {
+        if (purchaser == null) {
             log("GetImplings - Setting Purchaser");
             ItemPair[] items = calculateImplingsQuantity();
             purchaser = new GrandExchangePurchaser(
-                   items
+                    items
             );
         }
         return purchaser.purchase();
@@ -264,10 +264,10 @@ public class GrandExchange extends Task {
     }
 
     private boolean hasImplings() {
-        if(!LostCity.isComplete()) {
+        if (!LostCity.isComplete()) {
             boolean triedToGetAll = PlayerHelper.hasAllIncludeGrandExchange(true,
                     "Essence impling jar", "Eclectic impling jar", "Nature impling jar");
-            if(triedToGetAll) {
+            if (triedToGetAll) {
                 return true;
             }
         }
@@ -297,42 +297,14 @@ public class GrandExchange extends Task {
         Logger.fine("Essence Prices After: " + essencePrice + " " + eclecticPrice + " " + naturePrice);
 
         int coins = Inventory.getCount(true, "Coins");
-        coins = (coins / 100) * 90;
 
-        Logger.fine("Total coins: " + coins);
+        double count = (coins * .95) / ((essenceMultiplier * essencePrice) + (eclecticMultiplier * eclecticPrice) + (natureMultiplier * naturePrice));
 
-        int[] prices = new int[]{essencePrice, eclecticPrice, naturePrice};
-        Arrays.sort(prices);
-        int maxPrice = prices[prices.length - 1];
+        int essenceQuantity = (int) Math.floor(count * essenceMultiplier) - PlayerHelper.getTotalCount("Essence impling jar");
+        int eclecticQuantity = (int) Math.floor(count * eclecticMultiplier) - PlayerHelper.getTotalCount("Eclectic impling jar");
+        int natureQuantity = (int) Math.floor(count * natureMultiplier) - PlayerHelper.getTotalCount("Nature impling jar");
 
-        if(maxPrice == essencePrice) {
-            maxPrice = maxPrice * essenceMultiplier;
-        }
-
-        else if(maxPrice == eclecticPrice) {
-            maxPrice = maxPrice * eclecticMultiplier;
-        }
-
-        else if(maxPrice == naturePrice) {
-            maxPrice = maxPrice * natureMultiplier;
-        }
-
-        int essenceQuantity = 0;
-        int eclecticQuantity = 0;
-        int natureQuantity = 0;
-
-        Logger.fine("Max Price: " + maxPrice);
-
-        while (coins > maxPrice) {
-            coins = coins - (essenceMultiplier * essencePrice);
-            essenceQuantity += essenceMultiplier;
-            coins = coins - (eclecticMultiplier * eclecticPrice);
-            eclecticQuantity += eclecticMultiplier;
-            coins = coins - (natureMultiplier * naturePrice);
-            natureQuantity += natureMultiplier;
-        }
-
-        Logger.fine("Buying Essence Quantities: " + essenceQuantity + " " + eclecticQuantity + " " + natureQuantity);
+        Logger.info("Buying Essence Quantities: " + essenceQuantity + " " + eclecticQuantity + " " + natureQuantity);
 
         items[0] = new ItemPair("Essence impling jar", essenceQuantity, 1);
         items[1] = new ItemPair("Eclectic impling jar", eclecticQuantity, 1);
@@ -341,7 +313,7 @@ public class GrandExchange extends Task {
         items[1].setPrice(eclecticPrice);
         items[2].setPrice(naturePrice);
 
-        if(!ZanarisHelper.hasTeleports()) {
+        if (!ZanarisHelper.hasTeleports()) {
             Log.info("Adding varrock teleport to items.");
             items[3] = new ItemPair("Varrock teleport", 10, 6);
             Log.info("Adding lumbridge teleport to items.");

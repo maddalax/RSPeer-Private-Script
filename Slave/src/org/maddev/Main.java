@@ -22,6 +22,7 @@ import org.rspeer.runetek.event.types.ItemTableEvent;
 import org.rspeer.runetek.event.types.LoginResponseEvent;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.runetek.providers.subclass.GameCanvas;
+import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;

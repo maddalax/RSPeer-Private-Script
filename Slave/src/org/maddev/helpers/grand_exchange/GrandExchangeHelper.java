@@ -67,16 +67,16 @@ public class GrandExchangeHelper {
             log("Grand exchange is open.");
             return true;
         }
-        Store.setAction("Opening Grand Exchange");
-        if (Bank.isOpen()) {
-            log("Closing bank.");
-            Bank.close();
-        }
         Npc clerk = Npcs.getNearest("Grand Exchange Clerk");
         if(clerk == null) {
             log("Grand Exchange Clerk was null, walking to.");
             walkTo();
             return false;
+        }
+        Store.setAction("Opening Grand Exchange");
+        if (Bank.isOpen()) {
+            log("Closing bank.");
+            Bank.close();
         }
         InteractHelper.interact(clerk, "Exchange");
         TimeHelper.sleep(230, 750);

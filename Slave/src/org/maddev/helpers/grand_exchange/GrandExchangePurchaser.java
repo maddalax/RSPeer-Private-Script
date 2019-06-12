@@ -1,11 +1,14 @@
 package org.maddev.helpers.grand_exchange;
 
 import org.maddev.Store;
+import org.maddev.helpers.bank.BankHelper;
 import org.maddev.helpers.log.Logger;
 import org.maddev.helpers.player.PlayerHelper;
 import org.maddev.helpers.time.TimeHelper;
+import org.rspeer.runetek.api.commons.BankLocation;
 import org.rspeer.runetek.api.component.GrandExchange;
 import org.rspeer.runetek.api.component.GrandExchangeSetup;
+import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.providers.RSGrandExchangeOffer;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -15,10 +18,16 @@ public class GrandExchangePurchaser {
     private CopyOnWriteArrayList<ItemPair> pairs;
 
     public GrandExchangePurchaser(ItemPair... pairs) {
-        this.pairs = new CopyOnWriteArrayList<>(pairs);
+        this.pairs = new CopyOnWriteArrayList<>();
+        for (ItemPair pair : pairs) {
+            if(pair != null) this.pairs.add(pair);
+        }
     }
 
     public void addItem(ItemPair pair) {
+        if(pair == null) {
+            return;
+        }
         if (hasItem(pair.getName())) {
             return;
         }
@@ -31,6 +40,9 @@ public class GrandExchangePurchaser {
 
     public boolean hasItem(String name) {
         for (ItemPair pair : pairs) {
+            if(pair == null) {
+                return true;
+            }
             if (pair.getName().equals(name)) {
                 return true;
             }
@@ -133,6 +145,11 @@ public class GrandExchangePurchaser {
                 log("Should not buy: " + pair.getName());
                 purchaseCount++;
                 continue;
+            }
+            if(Inventory.contains(pair.getName())) {
+                BankHelper.depositAllExcept(BankLocation.GRAND_EXCHANGE, s -> s.getName().equals("Coins"));
+                TimeHelper.sleep(100, 500);
+                break;
             }
             if (!purchase(pair)) {
                 log("Purchase is not completed yet for " + pair.getName());
