@@ -22,7 +22,6 @@ import org.rspeer.runetek.event.types.ItemTableEvent;
 import org.rspeer.runetek.event.types.LoginResponseEvent;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.runetek.providers.subclass.GameCanvas;
-import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;
@@ -32,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.3)
+@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.4)
 public class Main extends TaskScript implements RenderListener, BankLoadListener, ItemTableListener, TaskChangeListener, LoginResponseListener {
 
     private StopWatch runtime;
