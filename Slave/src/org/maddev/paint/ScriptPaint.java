@@ -5,6 +5,7 @@ import org.maddev.Store;
 import org.maddev.helpers.bank.BankCache;
 import org.maddev.helpers.walking.CustomWalker;
 import org.maddev.helpers.walking.MovementHelper;
+import org.maddev.tasks.GrandExchange;
 import org.maddev.tasks.zanaris.Zanaris;
 import org.maddev.ws.WebSocket;
 import org.rspeer.runetek.api.movement.Movement;
@@ -51,11 +52,12 @@ public final class ScriptPaint implements RenderListener {
             Position p = Movement.getDestination();
             return p.getX() + ", " + p.getY() + ", " + p.getFloorLevel();
         }));
-        stats.put("Charges Left", new PaintStatistic(() -> String.valueOf(Zanaris.getChargesLeft())));
         stats.put("WS", new PaintStatistic(() -> WebSocket.getInstance().isConnected() ? "Connected." : "Not Connected."));
-        stats.put("WS Received", new PaintStatistic(() -> String.valueOf(WebSocket.getInstance().getMessagesRecieved())));
-        stats.put("WS Sent", new PaintStatistic(() -> String.valueOf(WebSocket.getInstance().getMessagesSent())));
         stats.put("Cache Last Update", new PaintStatistic(() -> BankCache.getLastUpdate() + " seconds ago"));
+        stats.put("Essence Quantity", new PaintStatistic(() -> String.valueOf(GrandExchange.getEssenceQuantity())));
+        stats.put("Eclectic Quantity", new PaintStatistic(() -> String.valueOf(GrandExchange.getEclecticQuantity())));
+        stats.put("Nature Quantity", new PaintStatistic(() -> String.valueOf(GrandExchange.getNatureQuantity())));
+        stats.put("Purchaser Active", new PaintStatistic(() -> GrandExchange.isPurchaserActive() ? "Yes" : "No"));
     }
 
     public Color getOutline() {

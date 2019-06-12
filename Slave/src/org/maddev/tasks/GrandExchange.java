@@ -25,11 +25,19 @@ import org.rspeer.script.task.Task;
 import org.rspeer.ui.Log;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class GrandExchange extends Task {
 
     private GrandExchangePurchaser purchaser;
+
+    private static int essenceQuantity;
+    private static int eclecticQuantity;
+    private static int natureQuantity;
+    private static boolean purchaserActive;
+
+    public static boolean isPurchaserActive() {
+        return purchaserActive;
+    }
 
     private boolean needsToPurchase() {
         if (Skills.getCurrentLevel(Skill.CRAFTING) < Config.CRAFTING_REQUIRED) {
@@ -69,6 +77,9 @@ public class GrandExchange extends Task {
 
     @Override
     public boolean validate() {
+        if(purchaser != null) {
+            return true;
+        }
         if (needsToPurchase()) {
             return true;
         }
@@ -81,6 +92,17 @@ public class GrandExchange extends Task {
     @Override
     public int execute() {
         Store.setTask("Grand Exchange");
+
+        purchaserActive = purchaser != null;
+        if(purchaser != null) {
+            log("Purchase is still active, continuing purchasing.");
+            boolean success = purchaser.purchase();
+            if(success) {
+                log("Purchasing was successful.");
+                purchaser = null;
+            }
+            return Random.nextInt(350, 550);
+        }
 
         if (Inventory.contains("Coins") && !needsToPurchase()) {
             depositCoins();
@@ -300,9 +322,9 @@ public class GrandExchange extends Task {
 
         double count = (coins * .95) / ((essenceMultiplier * essencePrice) + (eclecticMultiplier * eclecticPrice) + (natureMultiplier * naturePrice));
 
-        int essenceQuantity = (int) Math.floor(count * essenceMultiplier) - PlayerHelper.getTotalCount("Essence impling jar");
-        int eclecticQuantity = (int) Math.floor(count * eclecticMultiplier) - PlayerHelper.getTotalCount("Eclectic impling jar");
-        int natureQuantity = (int) Math.floor(count * natureMultiplier) - PlayerHelper.getTotalCount("Nature impling jar");
+        essenceQuantity = (int) Math.floor(count * essenceMultiplier) - PlayerHelper.getTotalCount("Essence impling jar");
+        eclecticQuantity = (int) Math.floor(count * eclecticMultiplier) - PlayerHelper.getTotalCount("Eclectic impling jar");
+        natureQuantity = (int) Math.floor(count * natureMultiplier) - PlayerHelper.getTotalCount("Nature impling jar");
 
         Logger.info("Buying Essence Quantities: " + essenceQuantity + " " + eclecticQuantity + " " + natureQuantity);
 
@@ -339,5 +361,17 @@ public class GrandExchange extends Task {
 
     protected void log(String message) {
         Logger.fine("GrandExchangeTask", message);
+    }
+
+    public static int getEclecticQuantity() {
+        return eclecticQuantity;
+    }
+
+    public static int getEssenceQuantity() {
+        return essenceQuantity;
+    }
+
+    public static int getNatureQuantity() {
+        return natureQuantity;
     }
 }

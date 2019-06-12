@@ -140,7 +140,7 @@ public class GrandExchangePurchaser {
         log("Executing Grand Exchange Buyer");
         collect();
         int purchaseCount = 0;
-        for (ItemPair pair : pairs) {
+            for (ItemPair pair : pairs) {
             if (!shouldBuy(pair)) {
                 log("Should not buy: " + pair.getName());
                 purchaseCount++;
