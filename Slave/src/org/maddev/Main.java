@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.4)
+@ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.5)
 public class Main extends TaskScript implements RenderListener, BankLoadListener, ItemTableListener, TaskChangeListener, LoginResponseListener {
 
     private StopWatch runtime;

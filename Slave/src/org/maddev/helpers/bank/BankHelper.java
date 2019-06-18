@@ -58,6 +58,12 @@ public class BankHelper {
             TimeHelper.sleep(350, 650);
             return MovementUtil.applyLumbridgeFix();
         }
+        if(location.getPosition().distance() > 10) {
+            Logger.fine("Walking closer to bank position. " + location.getPosition());
+            MovementHelper.walkRandomized(location.getPosition(), false, useHomeTeleport);
+            TimeHelper.sleep(350, 650);
+            return false;
+        }
         Interactable bank = null;
         switch (location.getType()) {
             case NPC: {
@@ -71,13 +77,7 @@ public class BankHelper {
             }
         }
         if(bank == null) {
-            if(location.getPosition().distance() > 10) {
-                Logger.fine("Walking to bank position because bank interactable was not found.");
-                MovementHelper.walkRandomized(location.getPosition(), false, useHomeTeleport);
-                TimeHelper.sleep(350, 650);
-                return false;
-            }
-            Store.setAction("Failed to find bank.");
+            Store.setAction("Failed to find bank even after walking closer.");
             Logger.severe("Failed to find bank.");
             return false;
         }
