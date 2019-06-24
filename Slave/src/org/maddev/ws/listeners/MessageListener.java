@@ -1,6 +1,10 @@
 package org.maddev.ws.listeners;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.maddev.Config;
+import org.maddev.Main;
 import org.maddev.State;
 import org.maddev.Store;
 import org.maddev.helpers.log.Logger;
@@ -10,6 +14,7 @@ import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.event.listeners.RenderListener;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.maddev.helpers.log.Logger;
+import org.rspeer.ui.Log;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -37,6 +42,34 @@ public class MessageListener implements RenderListener  {
         WebSocket.getInstance().registerListener("client_screenshot", (any) -> {
             Logger.fine("Taking screenshot.");
             takingScreenshot = true;
+        });
+        WebSocket.getInstance().registerListener("start_muling", (any) -> {
+            System.out.println(any.toString());
+            Store.setState(State.MULING);
+        });
+        WebSocket.getInstance().registerListener("get_config", (config) -> {
+            JsonArray array = Main.gson.fromJson(config.toString(), JsonArray.class);
+            for (JsonElement element : array) {
+               JsonObject o = element.getAsJsonObject();
+               String id = o.get("_id").getAsString();
+               switch (id) {
+                   case "muleNames": {
+                       Config.MULE_NAMES.clear();
+                       for (JsonElement value : o.get("value").getAsJsonArray()) {
+                            Config.MULE_NAMES.add(value.getAsString());
+                       }
+                       break;
+                   }
+                   case "muleTime": {
+                       Config.MULE_WHEN_TIME = o.get("value").getAsString();
+                       break;
+                   }
+                   case "muleWhenGold": {
+                       Config.MULE_WHEN_GOLD = o.get("value").getAsInt();
+                       break;
+                   }
+               }
+            }
         });
     }
 

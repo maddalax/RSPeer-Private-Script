@@ -57,6 +57,9 @@ public class ClientInfoAggregator {
     }
 
     private static Map<String, Integer> getInventory() {
+        if(Game.getClient() == null || !Game.isLoggedIn()) {
+            return new HashMap<>();
+        }
         Map<String, Integer> dict = new HashMap<>();
         for (Item item : Inventory.getItems()) {
             dict.putIfAbsent(item.getName(), Inventory.getCount(true, item.getName()));
@@ -65,6 +68,9 @@ public class ClientInfoAggregator {
     }
 
     private static Map<String, Integer> getEquipment() {
+        if(Game.getClient() == null || !Game.isLoggedIn()) {
+            return new HashMap<>();
+        }
         Map<String, Integer> dict = new HashMap<>();
         for (Item item : Equipment.getItems()) {
             dict.putIfAbsent(item.getName(), Equipment.getCount(true, item.getName()));
@@ -73,6 +79,9 @@ public class ClientInfoAggregator {
     }
 
     private static Map<String, Integer> getSkills() {
+        if(Game.getClient() == null || !Game.isLoggedIn()) {
+            return new HashMap<>();
+        }
         Map<String, Integer> dict = new HashMap<>();
         for (Skill item : Skill.values()) {
             dict.putIfAbsent(item.name(), Skills.getCurrentLevel(item));

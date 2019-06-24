@@ -3,12 +3,14 @@ package org.maddev;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.maddev.helpers.bank.BankCache;
+import org.maddev.helpers.cron.BackgroundJob;
 import org.maddev.helpers.log.Logger;
 import org.maddev.paint.ScriptPaint;
 import org.maddev.tasks.SubmitTasks;
 import org.maddev.web.dax.DaxWeb;
 import org.maddev.ws.WebSocket;
 import org.maddev.ws.data.PlayerUpdateSender;
+import org.maddev.ws.data.UpdateConfig;
 import org.maddev.ws.listeners.MessageListener;
 import org.rspeer.runetek.api.Game;
 import org.rspeer.runetek.api.commons.StopWatch;
@@ -22,13 +24,12 @@ import org.rspeer.runetek.event.types.ItemTableEvent;
 import org.rspeer.runetek.event.types.LoginResponseEvent;
 import org.rspeer.runetek.event.types.RenderEvent;
 import org.rspeer.runetek.providers.subclass.GameCanvas;
+import org.rspeer.script.GameAccount;
 import org.rspeer.script.ScriptMeta;
 import org.rspeer.script.task.Task;
 import org.rspeer.script.task.TaskChangeListener;
 import org.rspeer.script.task.TaskScript;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @ScriptMeta(developer = "MadDev", name = "Farm", desc = "The slave script", version = 1.5)
@@ -37,7 +38,6 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
     private StopWatch runtime;
     private ScriptPaint paint;
     public static final Gson gson = new Gson();
-    private ScheduledExecutorService executor;
 
     @Override
     public void onStart() {
@@ -45,15 +45,12 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         setupWebSocket();
         GameCanvas.setInputEnabled(true);
 
-        //setAccount(new GameAccount("mental336@mailboxhub.de", "topnotch271"));
+        setAccount(new GameAccount("parkland831@mailboxhub.co.uk", "prefect1273"));
         DaxWeb.initialize("sub_FCt2YD8MiHPMRh", "8710d5e0-9ea4-4fef-aa9c-41c52f88b01b");
 
         runtime = StopWatch.start();
         paint = new ScriptPaint(this);
         submit(new SubmitTasks(this));
-        executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(BankCache::cache
-        , 0, 1, TimeUnit.SECONDS);
     }
 
     private void setupWebSocket() {
@@ -64,9 +61,11 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
             Logger.severe(e);
         }
         Logger.fine("Successfully connected to WebSocket.");
-        PlayerUpdateSender.getInstance().start();
+        PlayerUpdateSender.start();
         MessageListener listener = new MessageListener();
         listener.initialize();
+        UpdateConfig.register();
+        BackgroundJob.enqueue(BankCache::cache, 1, TimeUnit.SECONDS);
     }
 
     public StopWatch getRuntime() {
@@ -78,9 +77,8 @@ public class Main extends TaskScript implements RenderListener, BankLoadListener
         super.onStop();
         try {
             Logger.severe("Script has stopped.");
-            PlayerUpdateSender.getInstance().dispose();
             WebSocket.getInstance().dispose();
-            executor.shutdown();
+            BackgroundJob.dispose();
             BankCache.dispose();
             Store.setState(org.maddev.State.SCRIPT_STOPPED);
         } catch (Exception e) {

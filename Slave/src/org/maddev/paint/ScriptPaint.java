@@ -1,5 +1,6 @@
 package org.maddev.paint;
 
+import org.maddev.Config;
 import org.maddev.Main;
 import org.maddev.Store;
 import org.maddev.helpers.bank.BankCache;
@@ -58,6 +59,9 @@ public final class ScriptPaint implements RenderListener {
         stats.put("Eclectic Quantity", new PaintStatistic(() -> String.valueOf(GrandExchange.getEclecticQuantity())));
         stats.put("Nature Quantity", new PaintStatistic(() -> String.valueOf(GrandExchange.getNatureQuantity())));
         stats.put("Purchaser Active", new PaintStatistic(() -> GrandExchange.isPurchaserActive() ? "Yes" : "No"));
+        stats.put("Total Mules", new PaintStatistic(() -> String.valueOf(Config.MULE_NAMES.size())));
+        stats.put("Mule Time", new PaintStatistic(() -> String.valueOf(Config.MULE_WHEN_TIME)));
+        stats.put("Mule When Gold", new PaintStatistic(() -> String.valueOf(Config.MULE_WHEN_GOLD)));
     }
 
     public Color getOutline() {

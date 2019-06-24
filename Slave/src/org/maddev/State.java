@@ -1,6 +1,7 @@
 package org.maddev;
 
 public enum State {
-    SCRIPT_STOPPED
+    SCRIPT_STOPPED,
+    MULING
 }
 

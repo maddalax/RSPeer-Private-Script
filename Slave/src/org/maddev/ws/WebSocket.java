@@ -87,9 +87,12 @@ public class WebSocket {
     }
 
     public static void main(String[] args) throws URISyntaxException {
-        Socket socket = IO.socket("http://localhost:3000");
-        socket.on(Socket.EVENT_CONNECT, objects -> System.out.println("Connected."));
+        Socket socket = IO.socket("http://localhost:4567");
+        socket.on(Socket.EVENT_CONNECT, objects -> {
+            System.out.println("Connected.");
+        });
         socket.connect();
+        socket.emit("get_config");
     }
 
 }
